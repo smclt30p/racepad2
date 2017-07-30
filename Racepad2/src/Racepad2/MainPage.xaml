@@ -1,0 +1,47 @@
+﻿<Page xmlns:maps="using:Windows.UI.Xaml.Controls.Maps" 
+    x:Class="Racepad2.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Racepad2"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:Racepad2.UI"
+    mc:Ignorable="d">
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Horizontal">
+            <Button Margin="5" Click="Button_Click">Start navigation</Button>
+        </StackPanel>
+
+        <!--
+        
+        <maps:MapControl
+            Name="map" 
+            Grid.Row="2" 
+            MapServiceToken="4qiurkdgKlTD5Ba1qkOu~7va9tRX0jj2kZEnXqyt8Iw~AmfqIUMnMk6zor_i4yKPKpXJeT3J0FxOsy8Z6BcGKRJ6yZwKRfZsj-ak87UiVnzT"/>
+        
+        <Button Name="AttachFollowButton"  
+                Grid.Row="2" 
+                VerticalAlignment="Top" 
+                HorizontalAlignment="Right" 
+                Content="&#xE17C;" 
+                FontFamily="Segoe MDL2 Assets"
+                Height="40"
+                Width="40"
+                Margin="10"
+                FontSize="20" Click="AttachFollowButton_Click"/>
+
+        -->
+
+        <ui:RouteMap
+            x:Name="Map"
+            Grid.Row="1"/>
+
+    </Grid>
+</Page>
