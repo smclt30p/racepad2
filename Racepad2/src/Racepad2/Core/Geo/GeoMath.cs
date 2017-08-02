@@ -5,6 +5,8 @@
 */
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using Windows.Devices.Geolocation;
 
 namespace Racepad2.Geo

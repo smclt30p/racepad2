@@ -21,6 +21,6 @@ namespace Racepad2.Geo.Navigation {
 
         }
 
-        public abstract Task<Route> ParseAsync();
+        public abstract Task<DriveRoute> ParseAsync();
     }
 }

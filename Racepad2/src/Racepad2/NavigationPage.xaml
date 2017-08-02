@@ -1,0 +1,126 @@
+﻿<Page xmlns:maps="using:Windows.UI.Xaml.Controls.Maps" 
+    x:Class="Racepad2.NavigationPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Racepad2"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:Racepad2.UI"
+      xmlns:statustiles="using:Racepad2.UI.StatusTiles"
+      mc:Ignorable="d">
+
+    
+    <Pivot Margin="-12,-48,-12,0">
+
+        <PivotItem>
+            
+            <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="5*"></RowDefinition>
+                    <RowDefinition Height="0.4*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                    <RowDefinition Height="*"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <ui:RouteMap x:Name="Map" Grid.ColumnSpan="2"></ui:RouteMap>
+
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
+                    <TextBlock Margin="7" TextAlignment="Center" Text="{x:Bind Ride.Instruction, Mode=OneWay}"></TextBlock>
+                </StackPanel>
+
+                <Border Margin="5,5,0,0" Grid.Row="2" BorderBrush="White" BorderThickness="0,0,1,0">
+                    <statustiles:TileContainer Tile="SpeedTile" Value="{x:Bind Ride.Speed, Mode=OneWay}"/>
+                </Border>
+
+                <Border Margin="5,0,0,5" Grid.Row="3" BorderBrush="White" BorderThickness="0,1,1,0">
+                    <statustiles:TileContainer Tile="TimeTile" Value="{x:Bind Ride.Time, Mode=OneWay}"/>
+                </Border>
+
+                <Border Margin="0,5,5,0" Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="0,0,0,0">
+                    <statustiles:TileContainer Tile="AverageSpeedTile" Value="{x:Bind Ride.AverageSpeed, Mode=OneWay}"/>
+                </Border>
+
+                <Border Margin="0,0,5,5" Grid.Row="3" Grid.Column="2" BorderBrush="White" BorderThickness="0,1,0,0">
+                    <statustiles:TileContainer Tile="DistanceTile" Value="{x:Bind Ride.Distance, Mode=OneWay}"/>
+                </Border>
+
+            </Grid>
+            
+        </PivotItem>
+
+        <PivotItem>
+
+            <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1.5*"></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <Border Margin="5,5,0,0" Grid.Row="0" Grid.ColumnSpan="2" BorderBrush="White" BorderThickness="0,0,0,0">
+                    <statustiles:TileContainer Tile="SpeedTile" Value="{x:Bind Ride.Speed, Mode=OneWay}"/>
+                </Border>
+
+                <Border Margin="5,0,0,0" Grid.Row="1" BorderBrush="White" BorderThickness="0,1,1,0">
+                    <statustiles:TileContainer Tile="AverageSpeedTile" Value="{x:Bind Ride.AverageSpeed, Mode=OneWay}"/>
+                </Border>
+
+                <Border Margin="0,0,5,0" Grid.Row="1" Grid.Column="2" BorderBrush="White" BorderThickness="0,1,0,0">
+                    <statustiles:TileContainer Tile="MaxSpeedTile" Value="{x:Bind Ride.MaxSpeed, Mode=OneWay}"/>
+                </Border>
+
+                <Border Margin="5,0,0,0" Grid.Row="2" BorderBrush="White" BorderThickness="0,1,1,0">
+                    <statustiles:TileContainer Tile="DistanceTile" Value="{x:Bind Ride.Distance, Mode=OneWay}"/>
+                </Border>
+
+                <Border Margin="5,0,0,0" Grid.Row="3" BorderBrush="White" BorderThickness="0,1,1,0">
+                    <!--<statustiles:TileContainer Tile="GradientTile" Value="{x:Bind Ride.Gradient, Mode=OneWay}"/>-->
+                </Border>
+
+                <Border Margin="0,0,5,0" Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="0,1,0,0">
+                    <statustiles:TileContainer Tile="TimeTile" Value="{x:Bind Ride.Time, Mode=OneWay}"/>
+                </Border>
+
+                <Border Margin="0,0,5,0" Grid.Row="3" Grid.Column="2" BorderBrush="White" BorderThickness="0,1,0,0">
+                    <statustiles:TileContainer Tile="AltitudeTile" Value="{x:Bind Ride.Elevation, Mode=OneWay}"/>
+                </Border>
+
+                <Border Margin="5,0,0,0" Grid.Row="4" BorderBrush="White" BorderThickness="0,1,1,0">
+                    <!--<statustiles:TileContainer Tile="SpeedTile" Value="{x:Bind Ride.Speed, Mode=OneWay}"/>-->
+                </Border>
+
+                <Border Margin="5,0,0,5" Grid.Row="5" BorderBrush="White" BorderThickness="0,1,1,0">
+                    <!--<statustiles:TileContainer Tile="SpeedTile" Value="{x:Bind Ride.Speed, Mode=OneWay}"/>-->
+                </Border>
+
+                <Border Margin="0,0,5,0" Grid.Row="4" Grid.Column="1" BorderBrush="White" BorderThickness="0,1,0,0">
+                    <!--<statustiles:TileContainer Tile="SpeedTile" Value="{x:Bind Ride.Speed, Mode=OneWay}"/>-->
+                </Border>
+
+                <Border Margin="0,0,5,5" Grid.Row="5" Grid.Column="2" BorderBrush="White" BorderThickness="0,1,0,0">
+                    <!--<statustiles:TileContainer Tile="AverageSpeedTile" Value="{x:Bind Ride.Speed, Mode=OneWay}"/>-->
+                </Border>
+
+            </Grid>
+
+        </PivotItem>
+        
+    </Pivot>
+    
+    
+</Page>

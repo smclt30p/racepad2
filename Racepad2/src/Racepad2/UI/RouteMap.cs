@@ -1,11 +1,14 @@
-﻿using Racepad2.Geo.Navigation.Core;
+﻿using Racepad2.Geo;
+using Racepad2.Geo.Navigation.Core;
 using System;
+using System.Collections.Generic;
 using Windows.Devices.Geolocation;
 using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Maps;
+using Windows.UI.Xaml.Media;
 
 namespace Racepad2.UI {
     class RouteMap : Grid {
@@ -36,6 +39,88 @@ namespace Racepad2.UI {
         /* The UI dispatcher element 
          */
         public CoreDispatcher ViewDispatcher { get; set; }
+
+        private DriveRoute _route;
+
+        public DriveRoute Route {
+            get {
+                return _route;
+            }
+            set {
+
+                List<BasicGeoposition> elevationPair = new List<BasicGeoposition>();
+                Geopath path;
+                MapPolyline polyline;
+                BasicGeoposition geo1;
+                BasicGeoposition geo2;
+
+                for (int i = 0; ; i++) {
+
+                    if (i + 1 >= value.Path.Count) break;
+
+                    geo1 = value.Path[i];
+                    geo2 = value.Path[i + 1];
+
+                    double run = GeoMath.Distance(geo1, geo2);
+                    double rise = geo2.Altitude - geo1.Altitude;
+                    double percentage = rise / run * 100;
+
+                    /* Null out altitude to lay 
+                     * polyline down flat on map */
+                    geo1.Altitude = 0;
+                    geo2.Altitude = 0;
+
+                    elevationPair.Add(geo1);
+                    elevationPair.Add(geo2);
+
+                    path = new Geopath(elevationPair);
+                    polyline = new MapPolyline() {
+                        StrokeThickness = 5,
+                        Path = path,
+                        StrokeColor = GetColorFromSlope(percentage)
+                    };
+
+                    Map.MapElements.Add(polyline);
+
+                }
+
+                UserLocation = new MapIcon() {
+                    Image = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/arrow.png"))
+                };
+
+                Map.MapElements.Add(UserLocation);
+
+                _route = value;
+            }
+        }
+
+        private Color GetColorFromSlope(double percentage) {
+
+            if (percentage < -20) return GetSolidColorBrush("00F6FF");
+            if (percentage > 20) return GetSolidColorBrush("FF0000");
+
+            if (percentage >= -20 && percentage <= -15) return GetSolidColorBrush("00FFB0");
+            if (percentage >= -15 && percentage <= -10) return GetSolidColorBrush("00FF77");
+            if (percentage >= -10 && percentage <= -5) return GetSolidColorBrush("00FF4C");
+            if (percentage >= -5 && percentage <= 0) return GetSolidColorBrush("00FF00");
+            if (percentage >= 0 && percentage <= 5) return GetSolidColorBrush("00FF00");
+            if (percentage >= 5 && percentage <= 10) return GetSolidColorBrush("FFFF00");
+            if (percentage >= 10 && percentage <= 15) return GetSolidColorBrush("FFBD00");
+            if (percentage >= 15 && percentage <= 20) return GetSolidColorBrush("FF8200");
+
+            return Colors.Purple;
+        }
+
+        /* Thanks to Joel Joseph for this method! */
+        public Color GetSolidColorBrush(string hex) {
+            hex = hex.Replace("#", string.Empty);
+            byte a = 255;
+            byte r = (byte)(Convert.ToUInt32(hex.Substring(0, 2), 16));
+            byte g = (byte)(Convert.ToUInt32(hex.Substring(2, 2), 16));
+            byte b = (byte)(Convert.ToUInt32(hex.Substring(4, 2), 16));
+            SolidColorBrush myBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(a, r, g, b));
+            return myBrush.Color;
+        }
 
         private string AttachIcon = null;
         private string DetachIcon = null;
@@ -70,7 +155,8 @@ namespace Racepad2.UI {
                 ZoomInteractionMode = MapInteractionMode.PointerKeyboardAndControl,
                 PanInteractionMode = MapPanInteractionMode.Auto,
                 TiltInteractionMode = MapInteractionMode.PointerKeyboardAndControl,
-                RotateInteractionMode = MapInteractionMode.PointerKeyboardAndControl
+                RotateInteractionMode = MapInteractionMode.PointerKeyboardAndControl,
+                ColorScheme = MapColorScheme.Dark
             };
 
             /* Initialize the button */
@@ -83,7 +169,8 @@ namespace Racepad2.UI {
                 Content = AttachIcon,
                 Height = 40,
                 Width = 40,
-                Margin = new Windows.UI.Xaml.Thickness(10)
+                Margin = new Windows.UI.Xaml.Thickness(10),
+                Background = new SolidColorBrush(Colors.DarkGray)
             };
 
             DetachButton.Click += DetachButton_Click;
@@ -116,28 +203,8 @@ namespace Racepad2.UI {
             }
 
         }
-
-        /** Display a Route object on the map. 
-         */
-        public void DisplayRouteOnMap(Route route) {
-
-            Geopath path = new Geopath(route.Path);
-            MapPolyline pol = new MapPolyline();
-
-            Geopoint start = new Geopoint(route.Path[0]);
-
-            pol.StrokeThickness = 5;
-            pol.StrokeColor = Colors.MediumPurple;
-            pol.Path = path;
-
-            UserLocation = new MapIcon() {
-                Image = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/arrow.png"))
-            };
-
-            Map.MapElements.Add(UserLocation);
-            Map.MapElements.Add(pol);
-
-        }
+    
+        
 
         /* If attached, centers the map onto the users location and 
          * turns the map in the heading direction
@@ -156,7 +223,7 @@ namespace Racepad2.UI {
             
         }
 
-        public async void PreviewRoute(Route route) {
+        public async void PreviewRoute(DriveRoute route) {
 
             GeoboundingBox box = GeoboundingBox.TryCompute(route.Path);
             await Map.TrySetViewBoundsAsync(box, new Windows.UI.Xaml.Thickness(20), MapAnimationKind.None);

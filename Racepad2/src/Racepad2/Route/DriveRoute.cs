@@ -7,10 +7,11 @@ using Windows.Devices.Geolocation;
 
 namespace Racepad2.Geo.Navigation.Core
 {
-    class Route
+    class DriveRoute
     {
         public List<BasicGeoposition> Path { get; set; }
-        public ICollection<Corner> Corners { get; set; }
+        public List<Corner> Corners { get; set; }
         public double EntranceBearing { get; set; }
+        public CourseStatus Status { get; set; }
     }
 }

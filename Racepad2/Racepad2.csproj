@@ -95,18 +95,35 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="src\Racepad2\Geo\GeoMath.cs" />
-    <Compile Include="src\Racepad2\Geo\Navigation\Core\Corner.cs" />
-    <Compile Include="src\Racepad2\Geo\Navigation\Core\CornerType.cs" />
-    <Compile Include="src\Racepad2\Geo\Navigation\GPXRouteParser.cs" />
-    <Compile Include="src\Racepad2\Geo\Navigation\GPXException.cs" />
-    <Compile Include="src\Racepad2\Geo\Navigation\Core\Route.cs" />
-    <Compile Include="src\Racepad2\Geo\Navigation\RouteParser.cs" />
+    <Compile Include="src\Racepad2\Core\Util\SettingsManager.cs" />
+    <Compile Include="src\Racepad2\Core\WalkingList.cs" />
+    <Compile Include="src\Racepad2\Core\Geo\Google\PolyUtil.cs" />
+    <Compile Include="src\Racepad2\Core\Geo\Navigation\CourseStatus.cs" />
     <Compile Include="src\Racepad2\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="src\Racepad2\Core\Geo\GeoMath.cs" />
+    <Compile Include="src\Racepad2\Core\Geo\Navigation\Core\Corner.cs" />
+    <Compile Include="src\Racepad2\Core\Geo\Navigation\Core\CornerType.cs" />
+    <Compile Include="src\Racepad2\Core\Geo\Navigation\GPXRouteParser.cs" />
+    <Compile Include="src\Racepad2\Core\Geo\Navigation\GPXException.cs" />
+    <Compile Include="src\Racepad2\Route\Ride.cs" />
+    <Compile Include="src\Racepad2\Route\DriveRoute.cs" />
+    <Compile Include="src\Racepad2\Core\Geo\Navigation\RouteParser.cs" />
+    <Compile Include="src\Racepad2\NavigationPage.xaml.cs">
+      <DependentUpon>NavigationPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="src\Racepad2\UI\RouteMap.cs" />
+    <Compile Include="src\Racepad2\UI\Sounds.cs" />
+    <Compile Include="src\Racepad2\UI\StatusTiles\AltitudeTile.cs" />
+    <Compile Include="src\Racepad2\UI\StatusTiles\AverageSpeedTile.cs" />
+    <Compile Include="src\Racepad2\UI\StatusTiles\BasicStatusTile.cs" />
+    <Compile Include="src\Racepad2\UI\StatusTiles\DistanceTile.cs" />
+    <Compile Include="src\Racepad2\UI\StatusTiles\MaxSpeedTile.cs" />
+    <Compile Include="src\Racepad2\UI\StatusTiles\SpeedTile.cs" />
+    <Compile Include="src\Racepad2\UI\StatusTiles\TileContainer.cs" />
+    <Compile Include="src\Racepad2\UI\StatusTiles\TimeTile.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -116,7 +133,15 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\arrow.png" />
-    <Content Include="Properties\Default.rd.xml" />
+    <Content Include="Assets\OffCourse.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Assets\Turn.wav">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Properties\Default.rd.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -131,6 +156,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Page Include="src\Racepad2\MainPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="src\Racepad2\NavigationPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -139,6 +168,11 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>5.2.3</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="WindowsMobile, Version=10.0.15063.0">
+      <Name>Windows Mobile Extensions for the UWP</Name>
+    </SDKReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

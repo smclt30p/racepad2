@@ -5,6 +5,7 @@ using System.Xml;
 using Windows.Devices.Geolocation;
 
 using Racepad2.Geo.Navigation.Core;
+using System.Diagnostics;
 
 namespace Racepad2.Geo.Navigation
 {
@@ -17,13 +18,13 @@ namespace Racepad2.Geo.Navigation
             this.innerData = data;
         }
 
-        public override async Task<Route> ParseAsync() {
+        public override async Task<DriveRoute> ParseAsync() {
             return await Task.Run(() => Parse());
         }
 
-        private Route Parse() {
+        private DriveRoute Parse() {
 
-            Route route = new Route();
+            DriveRoute route = new DriveRoute();
 
             List<BasicGeoposition> path = ParsePath();
             List<Corner> corners = ParseCorners(path);
@@ -67,14 +68,12 @@ namespace Racepad2.Geo.Navigation
                 geo.Latitude = lat;
                 geo.Longitude = lon;
 
-                XmlElement elevElement = (XmlElement) node.GetElementsByTagName("elev")[0];
-
-                if (elevElement != null) {
-
-                    geo.Altitude = Double.Parse(elevElement.InnerText);
-
+                foreach (XmlElement element in node.ChildNodes) {
+                    if (element.Name == "ele") {
+                        geo.Altitude = Double.Parse(element.InnerText);
+                    }
                 }
-
+                
                 positions.Add(geo);
 
             }
