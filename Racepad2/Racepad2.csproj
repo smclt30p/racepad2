@@ -107,6 +107,7 @@
     <Compile Include="src\Racepad2\Core\Geo\Navigation\Core\CornerType.cs" />
     <Compile Include="src\Racepad2\Core\Geo\Navigation\GPXRouteParser.cs" />
     <Compile Include="src\Racepad2\Core\Geo\Navigation\GPXException.cs" />
+    <Compile Include="src\Racepad2\Route\GradientPair.cs" />
     <Compile Include="src\Racepad2\Route\Ride.cs" />
     <Compile Include="src\Racepad2\Route\DriveRoute.cs" />
     <Compile Include="src\Racepad2\Core\Geo\Navigation\RouteParser.cs" />
@@ -133,6 +134,13 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\arrow.png" />
+    <Content Include="Assets\Icons\icon-history.png" />
+    <Content Include="Assets\Icons\icon-intervals.png" />
+    <Content Include="Assets\Icons\icon-map.png" />
+    <Content Include="Assets\Icons\icon-routes.png" />
+    <Content Include="Assets\Icons\icon-settings.png" />
+    <Content Include="Assets\Icons\icon-stats.png" />
+    <Content Include="Assets\Icons\Logo-racepad.png" />
     <Content Include="Assets\OffCourse.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -123,7 +123,7 @@ namespace Racepad2.UI {
 
             /* Misc init */
 
-            Attached = false;
+            Attached = true;
 
             /* Initialize the grid */
 
@@ -134,10 +134,10 @@ namespace Racepad2.UI {
 
             Map = new MapControl() {
                 MapServiceToken = MAP_SERVICE_TOKEN,
-                ZoomInteractionMode = MapInteractionMode.PointerKeyboardAndControl,
-                PanInteractionMode = MapPanInteractionMode.Auto,
-                TiltInteractionMode = MapInteractionMode.PointerKeyboardAndControl,
-                RotateInteractionMode = MapInteractionMode.PointerKeyboardAndControl,
+                ZoomInteractionMode = MapInteractionMode.Disabled,
+                PanInteractionMode = MapPanInteractionMode.Disabled,
+                TiltInteractionMode = MapInteractionMode.Disabled,
+                RotateInteractionMode = MapInteractionMode.Disabled,
                 ColorScheme = MapColorScheme.Dark
             };
 
@@ -148,7 +148,7 @@ namespace Racepad2.UI {
                 HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Right,
                 FontFamily = new Windows.UI.Xaml.Media.FontFamily("Segoe MDL2 Assets"),
                 FontSize = 20,
-                Content = AttachIcon,
+                Content = DetachIcon,
                 Height = 40,
                 Width = 40,
                 Margin = new Windows.UI.Xaml.Thickness(10),

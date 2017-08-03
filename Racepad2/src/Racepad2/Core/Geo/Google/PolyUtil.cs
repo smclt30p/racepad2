@@ -1,6 +1,6 @@
 ﻿/*
 * Copyright 2008, 2013 Google Inc.
-* Ported to UWP by Ognjen Galić, Cоpyright 2017
+* Ported to UWP by Ognjen Galić
 * 
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -21,11 +21,6 @@ using System.Text;
 using Windows.Devices.Geolocation;
 
 namespace Racepad2.Geo.Google {
-
-
-
-
-
 
     public class PolyUtil {
 

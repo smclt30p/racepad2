@@ -8,13 +8,77 @@
     mc:Ignorable="d">
 
 
-    <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <StackPanel Background="#333333">
 
-        <Button x:Name="Ride" Click="Ride_Click" HorizontalAlignment="Stretch" Height="120" FontSize="50" Background="{ThemeResource HyperlinkButtonForeground}">RIDE</Button>
-        <Button x:Name="History" Click="History_Click" HorizontalAlignment="Stretch" Height="70" FontSize="30" HorizontalContentAlignment="Left" Padding="20,0,0,0">History</Button>
+        <StackPanel Background="#4d4d4d">
+            <Image Source="ms-appx:///Assets/Icons/Logo-racepad.png" Height="45" Width="140"></Image>
+        </StackPanel>
+
+        <Button Background="Red" Margin="15" x:Name="Ride" Click="Ride_Click" HorizontalAlignment="Stretch" Height="120" >
+            <TextBlock FontSize="65" Margin="0,0,0,10">RIDE</TextBlock>
+        </Button>
+
+        <Grid Margin="10,0,10,10">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+                <RowDefinition></RowDefinition>
+            </Grid.RowDefinitions>
+
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+
+            <Button Background="Transparent">
+                <StackPanel>
+                    <Image Source="ms-appx:///Assets/Icons/icon-map.png"></Image>
+                    <TextBlock TextAlignment="Center">View Map</TextBlock>
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Column="1" Background="Transparent">
+                <StackPanel>
+                    <Image Source="ms-appx:///Assets/Icons/icon-routes.png"></Image>
+                    <TextBlock TextAlignment="Center">View Routes</TextBlock>
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Column="2" Background="Transparent">
+                <StackPanel>
+                    <Image Source="ms-appx:///Assets/Icons/icon-intervals.png"></Image>
+                    <TextBlock TextAlignment="Center">Intervals</TextBlock>
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Column="0" Grid.Row="1" Background="Transparent">
+                <StackPanel>
+                    <Image Source="ms-appx:///Assets/Icons/icon-history.png"></Image>
+                    <TextBlock TextAlignment="Center">History</TextBlock>
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Column="1" Grid.Row="1" Background="Transparent">
+                <StackPanel>
+                    <Image Source="ms-appx:///Assets/Icons/icon-stats.png"></Image>
+                    <TextBlock TextAlignment="Center">Statistics</TextBlock>
+                </StackPanel>
+            </Button>
+
+            <Button Grid.Column="2" Grid.Row="1" Background="Transparent">
+                <StackPanel>
+                    <Image Source="ms-appx:///Assets/Icons/icon-settings.png"></Image>
+                    <TextBlock TextAlignment="Center">Settings</TextBlock>
+                </StackPanel>
+            </Button>
+
+        </Grid>
+        
+        <!--<Button x:Name="History" Click="History_Click" HorizontalAlignment="Stretch" Height="70" FontSize="30" HorizontalContentAlignment="Left" Padding="20,0,0,0">History</Button>
         <Button HorizontalAlignment="Stretch" Height="70" FontSize="30" HorizontalContentAlignment="Left" Padding="20,0,0,0">Training</Button>
         <Button HorizontalAlignment="Stretch" Height="70" FontSize="30" HorizontalContentAlignment="Left" Padding="20,0,0,0">My Stats</Button>
-        <Button x:Name="Settings" Click="Settings_Click" HorizontalAlignment="Stretch" Height="70" FontSize="30" HorizontalContentAlignment="Left" Padding="20,0,0,0">Settings</Button>
+        <Button x:Name="Settings" Click="Settings_Click" HorizontalAlignment="Stretch" Height="70" FontSize="30" HorizontalContentAlignment="Left" Padding="20,0,0,0">Settings</Button>-->
         
     </StackPanel>
 </Page>
