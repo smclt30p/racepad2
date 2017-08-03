@@ -8,8 +8,12 @@ namespace Racepad2.Geo.Navigation {
     enum CourseStatus {
         COURSE_STARTED,
         COURSE_PAUSED,
-        COURSE_ENDING,
+        //COURSE_PAUSED_FINISHED,
+        // COURSE_PAUSED_NOT_STARTED,
+        COURSE_LAST_STRAIGHT,
         COURSE_FINISHED,
-        COURSE_NOT_STARTED
+        COURSE_NOT_STARTED,
+        COURSE_IN_PROGRESS,
+        COURSE_OFF_COURSE
     }
 }

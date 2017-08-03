@@ -16,6 +16,17 @@ namespace Racepad2.UI {
         private StorageFile OffCourseFile { get; set; }
         private StorageFile TurnFile { get; set; }
 
+        private bool TurnSoundPlayed { get; set; } = false;
+        private bool OffCourseSoundPlayed { get; set; } = false;
+
+        public void ResetTurnPlayed() {
+            TurnSoundPlayed = false;
+        }
+
+        public void ResetOffCoursePlayed() {
+            OffCourseSoundPlayed = false;
+        }
+
         public Sounds() {
             MediaElement = new MediaElement();
             InitialzieComponent();
@@ -37,8 +48,10 @@ namespace Racepad2.UI {
         /// ... TODO: Add settings?!
         /// </summary>
         public void PlayOffCourse() {
+            if (OffCourseSoundPlayed) return;
             MediaElement.SetSource(OffCourseStream, OffCourseFile.ContentType);
             MediaElement.Play();
+            OffCourseSoundPlayed = true;
         }
 
         /// <summary>
@@ -47,8 +60,10 @@ namespace Racepad2.UI {
         /// ... TODO: Add settings?!
         /// </summary>
         public void PlayTurn() {
+            if (TurnSoundPlayed) return;
             MediaElement.SetSource(TurnStream, TurnFile.ContentType);
             MediaElement.Play();
+            TurnSoundPlayed = true;
         }
 
         /// <summary>
