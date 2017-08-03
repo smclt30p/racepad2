@@ -1,5 +1,5 @@
-﻿using Racepad2.Geo;
-using Racepad2.Geo.Navigation.Core;
+﻿using Racepad2.Geo.Navigation.Core;
+using Racepad2.Route;
 using System;
 using System.Collections.Generic;
 using Windows.Devices.Geolocation;
@@ -48,36 +48,18 @@ namespace Racepad2.UI {
             }
             set {
 
-                List<BasicGeoposition> elevationPair = new List<BasicGeoposition>();
-                Geopath path;
+                List<GradientPair> gradiends = DriveRoute.GetGradientPairsFromRoute(value.Path);
+
                 MapPolyline polyline;
-                BasicGeoposition geo1;
-                BasicGeoposition geo2;
+                Geopath path;
 
-                for (int i = 0; ; i++) {
+                foreach (GradientPair pair in gradiends) {
 
-                    if (i + 1 >= value.Path.Count) break;
-
-                    geo1 = value.Path[i];
-                    geo2 = value.Path[i + 1];
-
-                    double run = GeoMath.Distance(geo1, geo2);
-                    double rise = geo2.Altitude - geo1.Altitude;
-                    double percentage = rise / run * 100;
-
-                    /* Null out altitude to lay 
-                     * polyline down flat on map */
-                    geo1.Altitude = 0;
-                    geo2.Altitude = 0;
-
-                    elevationPair.Add(geo1);
-                    elevationPair.Add(geo2);
-
-                    path = new Geopath(elevationPair);
+                    path = new Geopath(pair.Path);
                     polyline = new MapPolyline() {
                         StrokeThickness = 5,
                         Path = path,
-                        StrokeColor = GetColorFromSlope(percentage)
+                        StrokeColor = GetColorFromSlope(pair.SlopePercentage)
                     };
 
                     Map.MapElements.Add(polyline);
@@ -100,13 +82,13 @@ namespace Racepad2.UI {
             if (percentage > 20) return GetSolidColorBrush("FF0000");
 
             if (percentage >= -20 && percentage <= -15) return GetSolidColorBrush("00FFB0");
-            if (percentage >= -15 && percentage <= -10) return GetSolidColorBrush("00FF77");
-            if (percentage >= -10 && percentage <= -5) return GetSolidColorBrush("00FF4C");
+            if (percentage >= -15 && percentage <= -10) return GetSolidColorBrush("00ffc6");
+            if (percentage >= -10 && percentage <= -5) return GetSolidColorBrush("00ff92");
             if (percentage >= -5 && percentage <= 0) return GetSolidColorBrush("00FF00");
-            if (percentage >= 0 && percentage <= 5) return GetSolidColorBrush("00FF00");
-            if (percentage >= 5 && percentage <= 10) return GetSolidColorBrush("FFFF00");
-            if (percentage >= 10 && percentage <= 15) return GetSolidColorBrush("FFBD00");
-            if (percentage >= 15 && percentage <= 20) return GetSolidColorBrush("FF8200");
+            if (percentage >= 0 && percentage <= 5) return GetSolidColorBrush("f4ff00");
+            if (percentage >= 5 && percentage <= 10) return GetSolidColorBrush("ffaf00");
+            if (percentage >= 10 && percentage <= 15) return GetSolidColorBrush("ff7900");
+            if (percentage >= 15 && percentage <= 20) return GetSolidColorBrush("ff00e6");
 
             return Colors.Purple;
         }
