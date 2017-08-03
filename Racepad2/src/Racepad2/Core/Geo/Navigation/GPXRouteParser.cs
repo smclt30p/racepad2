@@ -6,6 +6,7 @@ using Windows.Devices.Geolocation;
 
 using Racepad2.Geo.Navigation.Core;
 using System.Diagnostics;
+using Racepad2.Geo.Google;
 
 namespace Racepad2.Geo.Navigation
 {
@@ -27,7 +28,7 @@ namespace Racepad2.Geo.Navigation
             DriveRoute route = new DriveRoute();
 
             List<BasicGeoposition> path = ParsePath();
-            List<Corner> corners = ParseCorners(path);
+            List<Corner> corners = ParseCorners(PolyUtil.simplify(path, 5));
 
             if (path.Count < 2) return route;
 
