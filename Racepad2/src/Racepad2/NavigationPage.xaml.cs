@@ -1,11 +1,12 @@
-﻿#define ROUTEDEBUG
+﻿using System;
+using System.Diagnostics;
 
-using System;
 using Windows.Devices.Geolocation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
 using Windows.System.Display;
+
 using Racepad2.Route;
 using Racepad2.Geo;
 using Racepad2.Geo.Google;
@@ -13,7 +14,6 @@ using Racepad2.UI;
 using Racepad2.Geo.Navigation;
 using Racepad2.Geo.Navigation.Core;
 using Racepad2.Core;
-using System.Diagnostics;
 
 namespace Racepad2 {
 
