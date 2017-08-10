@@ -7,6 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="using:Racepad2.UI"
       xmlns:statustiles="using:Racepad2.UI.StatusTiles"
+      xmlns:ui1="using:Racepad2.UI.Maps"
       mc:Ignorable="d">
 
     
@@ -28,7 +29,7 @@
                     <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <ui:RouteMap x:Name="Map" Grid.ColumnSpan="2"></ui:RouteMap>
+                <ui1:RouteMap x:Name="Map" Grid.ColumnSpan="2"></ui1:RouteMap>
 
                 <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
                     <TextBlock Margin="7" TextAlignment="Center" Text="{x:Bind Ride.Instruction, Mode=OneWay}"></TextBlock>

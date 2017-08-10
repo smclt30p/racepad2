@@ -1,6 +1,15 @@
 ﻿/*
-* Copyright 2008, 2013 Google Inc.
-* Ported to UWP by Ognjen Galić
+* PolyUtil - Copyright 2008, 2013 Google Inc.
+* Geomath - Copyright 2017 Supremacy Software
+*     ______  _____  ___  ______  ______  _______  __
+*    / __/ / / / _ \/ _ \/ __/  |/  / _ |/ ___/\ \/ /
+*   _\ \/ /_/ / ___/ , _/ _// /|_/ / __ / /__   \  /
+*  /___/\____/_/  /_/|_/___/_/  /_/_/ |_\___/   /_/.org
+*
+*                 Software Supremacy
+*                 www.supremacy.org
+* 
+* This file is part of Racepad2
 * 
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -18,98 +27,97 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+
 using Windows.Devices.Geolocation;
 
-namespace Racepad2.Geo.Google {
+
+namespace Racepad2.Navigation.Maths {
+
+    class GeoMath {
+
+        /// <summary>
+        /// Returns the angle between two coordinates and a pivoting point in degrees
+        /// </summary>
+        /// <param name="arc1">The first arc</param>
+        /// <param name="pivot">The pivoting point</param>
+        /// <param name="arc2">The second arc</param>
+        /// <returns></returns>
+        public static double Angle(BasicGeoposition arc1, BasicGeoposition pivot, BasicGeoposition arc2) {
+            double angle1 = Bearing(pivot, arc1);
+            double angle2 = Bearing(pivot, arc2);
+            double absangle = ((angle1 - angle2) + 360) % 360;
+            return absangle;
+        }
+
+        /// <summary>
+        /// Returns the distance between two geocoordinates in meters
+        /// </summary>
+        /// <param name="pos1">The first geocoordinate</param>
+        /// <param name="pos2">The second geocoordinate</param>
+        /// <returns>The distance between the two geocoordinates</returns>
+        public static double Distance(BasicGeoposition pos1, BasicGeoposition pos2) {
+            double lat1deg = pos1.Latitude;
+            double lon1deg = pos1.Longitude;
+            double lat2deg = pos2.Latitude;
+            double lon2deg = pos2.Longitude;
+            double earthDiameter = 6371e3; // meters
+            /* φ1 */
+            double lat1rad = DegreeToRadian(lat1deg);
+            /* φ2 */
+            double lat2rad = DegreeToRadian(lat2deg);
+            /* Δφ */
+            double deltalat = DegreeToRadian(lat2deg - lat1deg);
+            /* Δλ */
+            double deltalon = DegreeToRadian(lon2deg - lon1deg);
+            double a = Math.Sin(deltalat / 2) * Math.Sin(deltalat / 2) +
+                Math.Cos(lat1rad) * Math.Cos(lat2rad) *
+                Math.Sin(deltalon / 2) * Math.Sin(deltalon / 2);
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            double d = earthDiameter * c;
+            return d;
+        }
+
+        /// <summary>
+        /// Return the bearing direction of the vector pos1->pos2 in
+        /// degrees
+        /// </summary>
+        /// <param name="pos1">The start point</param>
+        /// <param name="pos2">The end point</param>
+        /// <returns>The bearing of the vector in degrees</returns>
+        public static double Bearing(BasicGeoposition pos1, BasicGeoposition pos2) {
+            double φ2 = pos2.Latitude;
+            double φ1 = pos1.Latitude;
+            double λ2 = pos2.Longitude;
+            double λ1 = pos1.Longitude;
+            double y = Math.Sin(λ2 - λ1) * Math.Cos(φ2);
+            double x = Math.Cos(φ1) * Math.Sin(φ2) -
+                    Math.Sin(φ1) * Math.Cos(φ2) * Math.Cos(λ2 - λ1);
+            double brng = RadianToDegree(Math.Atan2(y, x));
+            return (brng + 360) % 360;
+        }
+
+        /// <summary>
+        /// Converts degrees to radians
+        /// </summary>
+        /// <param name="angle">The angle in degrees</param>
+        /// <returns>The angle in radians</returns>
+        private static double DegreeToRadian(double angle) {
+            return Math.PI * angle / 180.0;
+        }
+
+        /// <summary>
+        /// Convers radians to degrees
+        /// </summary>
+        /// <param name="angle">The angle in radians</param>
+        /// <returns>The angle in degrees</returns>
+        private static double RadianToDegree(double angle) {
+            return angle * (180 / Math.PI);
+        }
+    }
 
     public class PolyUtil {
 
         private PolyUtil() { }
-
-        /* start c# layer */
-
-        private static double PI = Math.PI;
-
-        private static double toRadians(double angle) {
-            return Math.PI * angle / 180.0;
-        }
-
-        private static double tan(double angle) {
-            return Math.Tan(angle);
-        }
-
-        private static double sin(double angle) {
-            return Math.Sin(angle);
-        }
-
-        private static double log(double number) {
-            return Math.Log(number);
-        }
-
-        private static double mercator(double lat) {
-            return log(tan(lat * 0.5 + PI / 4));
-        }
-
-        private static double inverseMercator(double y) {
-            return 2 * Math.Atan(Math.Exp(y)) - PI / 2;
-        }
-
-        private static double wrap(double n, double min, double max) {
-            return (n >= min && n < max) ? n : (mod(n - min, max - min) + min);
-        }
-
-        private static double hav(double x) {
-            double sinHalf = sin(x * 0.5);
-            return sinHalf * sinHalf;
-        }
-
-        private static double max(double inp, double inp2) {
-            return Math.Max(inp, inp2);
-        }
-
-        private static double mod(double x, double m) {
-            return ((x % m) + m) % m;
-        }
-
-        private static double clamp(double x, double low, double high) {
-            return x < low ? low : (x > high ? high : x);
-        }
-
-        private static double min(double a, double b) {
-            return Math.Min(a, b);
-        }
-
-        private static double cos(double a) {
-            return Math.Cos(a);
-        }
-
-        private static double havDistance(double lat1, double lat2, double dLng) {
-            return hav(lat1 - lat2) + hav(dLng) * cos(lat1) * cos(lat2);
-        }
-
-        private static double sqrt(double num) {
-            return Math.Sqrt(num);
-        }
-
-        private static double sinFromHav(double h) {
-            return 2 * sqrt(h * (1 - h));
-        }
-
-        // Returns hav(asin(x)).
-        private static double havFromSin(double x) {
-            double x2 = x * x;
-            return x2 / (1 + sqrt(1 - x2)) * .5;
-        }
-
-        private static double sinSumFromHav(double x, double y) {
-            double a = sqrt(x * (1 - x));
-            double b = sqrt(y * (1 - y));
-            return 2 * (a + b - 2 * (a * y + b * x));
-        }
-
-        private static double asin(double a) {
-            return Math.Asin(a);
-        }
 
         /// <summary>
         /// Computes inverse haversine. Has good numerical stability around 0.
@@ -123,7 +131,6 @@ namespace Racepad2.Geo.Google {
         }
 
         /* End C# layer */
-
         /// <summary>
         /// Returns tan(latitude-at-lng3) on the great circle(lat1, lng1) to(lat2, lng2). lng1==0.
         /// See http://williams.best.vwh.net/avform.htm .
@@ -262,11 +269,9 @@ namespace Racepad2.Geo.Google {
                                                bool geodesic) {
             return isLocationOnPath(point, polyline, geodesic, DEFAULT_TOLERANCE);
         }
-
         private static bool isLocationOnEdgeOrPath(BasicGeoposition point, List<BasicGeoposition> poly, bool closed,
                                                       bool geodesic, double toleranceEarth) {
             int idx = locationIndexOnEdgeOrPath(point, poly, closed, geodesic, toleranceEarth);
-
             return (idx >= 0);
         }
 
@@ -449,6 +454,7 @@ namespace Racepad2.Geo.Google {
         /// <param name="tolerance">tolerance in meters.  Increasing the tolerance will result in fewer points in the
         ///                         simplified poly.</param>
         /// <returns>a simplified poly produced by the Douglas-Peucker algorithm</returns>
+
         public static List<BasicGeoposition> simplify(List<BasicGeoposition> poly, double tolerance) {
             int n = poly.Count;
             if (n < 1) {
@@ -457,10 +463,8 @@ namespace Racepad2.Geo.Google {
             if (tolerance <= 0) {
                 throw new Exception("Tolerance must be greater than zero");
             }
-
             bool closedPolygon = isClosedPolygon(poly);
             BasicGeoposition lastPoint = new BasicGeoposition();
-
             // Check if the provided poly is a closed polygon
             if (closedPolygon) {
                 // Add a small offset to the last point for Douglas-Peucker on polygons (see #201)
@@ -471,7 +475,6 @@ namespace Racepad2.Geo.Google {
                 BasicGeoposition position = new BasicGeoposition { Latitude = lastPoint.Latitude + OFFSET, Longitude = lastPoint.Longitude + OFFSET };
                 poly.Add(position);
             }
-
             int idx;
             int maxIdx = 0;
             Stack<int[]> stack = new Stack<int[]>();
@@ -481,7 +484,6 @@ namespace Racepad2.Geo.Google {
             double maxDist;
             double dist = 0.0;
             int[] current;
-
             if (n > 2) {
                 int[] stackVal = new int[] { 0, (n - 1) };
                 stack.Push(stackVal);
@@ -505,13 +507,11 @@ namespace Racepad2.Geo.Google {
                     }
                 }
             }
-
             if (closedPolygon) {
                 // Replace last point w/ offset with the original last point to re-close the polygon
                 poly.RemoveAt(poly.Count - 1);
                 poly.Add(lastPoint);
             }
-
             // Generate the simplified line
             idx = 0;
             List<BasicGeoposition> simplifiedLine = new List<BasicGeoposition>();
@@ -521,72 +521,64 @@ namespace Racepad2.Geo.Google {
                 }
                 idx++;
             }
-
             return simplifiedLine;
         }
 
-        /**
-         * Returns true if the provided list of points is a closed polygon (i.e., the first and last
-         * points are the same), and false if it is not
-         * @param poly polyline or polygon
-         * @return true if the provided list of points is a closed polygon (i.e., the first and last
-         * points are the same), and false if it is not
-         */
+        /// <summary>
+        /// Returns true if the provided list of points is a closed polygon (i.e., the first and last
+        /// points are the same), and false if it is not
+        /// </summary>
+        /// <param name="poly">poly polyline or polygon</param>
+        /// <returns>true if the provided list of points is a closed polygon (i.e., the first and last
+        ///          points are the same), and false if it is not</returns>
         public static bool isClosedPolygon(List<BasicGeoposition> poly) {
             BasicGeoposition firstPoint = poly[0];
             BasicGeoposition lastPoint = poly[poly.Count - 1];
-
             return (firstPoint.Longitude == lastPoint.Longitude &&
                 firstPoint.Latitude == lastPoint.Latitude);
-
         }
 
-        /**
-        * Returns the distance between two LatLngs, in meters.
-        */
+        /// <summary>
+        /// Returns the distance between two LatLngs, in meters.
+        /// </summary>
         public static double computeDistanceBetween(BasicGeoposition from, BasicGeoposition to) {
             return computeAngleBetween(from, to) * EARTH_RADIUS;
         }
 
-        /**
-         * Returns the angle between two LatLngs, in radians. This is the same as the distance
-         * on the unit sphere.
-         */
+        /// <summary>
+        /// Returns the angle between two LatLngs, in radians. This is the same as the distance
+        /// on the unit sphere.
+        /// </summary>
         static double computeAngleBetween(BasicGeoposition from, BasicGeoposition to) {
             return distanceRadians(toRadians(from.Latitude), toRadians(from.Longitude),
                                    toRadians(to.Latitude), toRadians(to.Longitude));
         }
 
-        /**
-         * Returns distance on the unit sphere; the arguments are in radians.
-         */
+        /// <summary>
+        /// Returns distance on the unit sphere; the arguments are in radians.
+        /// </summary>
         private static double distanceRadians(double lat1, double lng1, double lat2, double lng2) {
             return arcHav(havDistance(lat1, lat2, lng1 - lng2));
         }
 
-
-        /**
-         * Computes the distance on the sphere between the point p and the line segment start to end.
-         *
-         * @param p the point to be measured
-         * @param start the beginning of the line segment
-         * @param end the end of the line segment
-         * @return the distance in meters (assuming spherical earth)
-         */
+        /// <summary>
+        /// Computes the distance on the sphere between the point p and the line segment start to end.
+        /// </summary>
+        /// <param name="p">the point to be measured</param>
+        /// <param name="start">the beginning of the line segment</param>
+        /// <param name="end">the end of the line segment</param>
+        /// <returns>the distance in meters (assuming spherical earth)</returns>
         public static double distanceToLine(BasicGeoposition p, BasicGeoposition start, BasicGeoposition end) {
-
             if (start.Longitude == end.Longitude &&
                 start.Latitude == end.Latitude) {
                 return computeDistanceBetween(end, p);
             }
-
             double s0lat = toRadians(p.Latitude);
             double s0lng = toRadians(p.Longitude);
             double s1lat = toRadians(start.Latitude);
             double s1lng = toRadians(start.Longitude);
             double s2lat = toRadians(end.Latitude);
             double s2lng = toRadians(end.Longitude);
-
             double s2s1lat = s2lat - s1lat;
             double s2s1lng = s2lng - s1lng;
             double u = ((s0lat - s1lat) * s2s1lat + (s0lng - s1lng) * s2s1lng)
@@ -602,19 +594,17 @@ namespace Racepad2.Geo.Google {
             return computeDistanceBetween(sa, sb);
         }
 
-        /**
-         * Decodes an encoded path string into a sequence of LatLngs.
-         */
+        /// <summary>
+        /// Decodes an encoded path string into a sequence of LatLngs.
+        /// </summary>
         public static List<BasicGeoposition> decode(string encodedPath) {
             int len = encodedPath.Length;
-
             // For speed we preallocate to an upper bound on the final length, then
             // truncate the array before returning.
             List<BasicGeoposition> path = new List<BasicGeoposition>();
             int index = 0;
             int lat = 0;
             int lng = 0;
-
             while (index < len) {
                 int result = 1;
                 int shift = 0;
@@ -625,7 +615,6 @@ namespace Racepad2.Geo.Google {
                     shift += 5;
                 } while (b >= 0x1f);
                 lat += (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-
                 result = 1;
                 shift = 0;
                 do {
@@ -634,32 +623,25 @@ namespace Racepad2.Geo.Google {
                     shift += 5;
                 } while (b >= 0x1f);
                 lng += (result & 1) != 0 ? ~(result >> 1) : (result >> 1);
-
                 path.Add(new BasicGeoposition { Latitude = lat * 1e-5, Longitude = lng * 1e-5 });
             }
-
             return path;
         }
 
-        /**
-         * Encodes a sequence of LatLngs into an encoded path string.
-         */
+        /// <summary>
+        /// Encodes a sequence of LatLngs into an encoded path string.
+        /// </summary>
         public static String encode(List<BasicGeoposition> path) {
             long lastLat = 0;
             long lastLng = 0;
-
             StringBuilder result = new StringBuilder();
-
             foreach (BasicGeoposition point in path) {
-                long lat = (long) Math.Round(point.Latitude * 1e5);
-                long lng = (long) Math.Round(point.Longitude * 1e5);
-
+                long lat = (long)Math.Round(point.Latitude * 1e5);
+                long lng = (long)Math.Round(point.Longitude * 1e5);
                 long dLat = lat - lastLat;
                 long dLng = lng - lastLng;
-
                 encode(dLat, result);
                 encode(dLng, result);
-
                 lastLat = lat;
                 lastLng = lng;
             }
@@ -674,6 +656,90 @@ namespace Racepad2.Geo.Google {
             }
             result.Append(Convert.ToChar((int)(v + 63)));
         }
-    }
 
+        /* start c# layer */
+        private static double PI = Math.PI;
+
+        private static double toRadians(double angle) {
+            return Math.PI * angle / 180.0;
+        }
+
+        private static double tan(double angle) {
+            return Math.Tan(angle);
+        }
+
+        private static double sin(double angle) {
+            return Math.Sin(angle);
+        }
+
+        private static double log(double number) {
+            return Math.Log(number);
+        }
+
+        private static double mercator(double lat) {
+            return log(tan(lat * 0.5 + PI / 4));
+        }
+
+        private static double inverseMercator(double y) {
+            return 2 * Math.Atan(Math.Exp(y)) - PI / 2;
+        }
+
+        private static double wrap(double n, double min, double max) {
+            return (n >= min && n < max) ? n : (mod(n - min, max - min) + min);
+        }
+
+        private static double hav(double x) {
+            double sinHalf = sin(x * 0.5);
+            return sinHalf * sinHalf;
+        }
+
+        private static double max(double inp, double inp2) {
+            return Math.Max(inp, inp2);
+        }
+
+        private static double mod(double x, double m) {
+            return ((x % m) + m) % m;
+        }
+
+        private static double clamp(double x, double low, double high) {
+            return x < low ? low : (x > high ? high : x);
+        }
+
+        private static double min(double a, double b) {
+            return Math.Min(a, b);
+        }
+
+        private static double cos(double a) {
+            return Math.Cos(a);
+        }
+
+        private static double havDistance(double lat1, double lat2, double dLng) {
+            return hav(lat1 - lat2) + hav(dLng) * cos(lat1) * cos(lat2);
+        }
+
+        private static double sqrt(double num) {
+            return Math.Sqrt(num);
+        }
+
+        private static double sinFromHav(double h) {
+            return 2 * sqrt(h * (1 - h));
+        }
+
+        // Returns hav(asin(x)).
+        private static double havFromSin(double x) {
+            double x2 = x * x;
+            return x2 / (1 + sqrt(1 - x2)) * .5;
+        }
+
+        private static double sinSumFromHav(double x, double y) {
+            double a = sqrt(x * (1 - x));
+            double b = sqrt(y * (1 - y));
+            return 2 * (a + b - 2 * (a * y + b * x));
+        }
+
+        private static double asin(double a) {
+            return Math.Asin(a);
+        }
+
+    }
 }

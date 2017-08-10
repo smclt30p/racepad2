@@ -95,46 +95,28 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="src\Racepad2\Core\FileReader.cs" />
+    <Compile Include="src\Racepad2\Core\Navigation\Parsers.cs" />
+    <Compile Include="src\Racepad2\Core\Navigation\Route.cs" />
+    <Compile Include="src\Racepad2\Core\Util\FileReader.cs" />
     <Compile Include="src\Racepad2\Core\Util\SettingsManager.cs" />
-    <Compile Include="src\Racepad2\Core\WalkingList.cs" />
-    <Compile Include="src\Racepad2\Core\Geo\Google\PolyUtil.cs" />
-    <Compile Include="src\Racepad2\Core\Geo\Navigation\CourseStatus.cs" />
+    <Compile Include="src\Racepad2\Core\Util\WalkingList.cs" />
     <Compile Include="src\Racepad2\MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="src\Racepad2\Core\Geo\GeoMath.cs" />
-    <Compile Include="src\Racepad2\Core\Geo\Navigation\Core\Corner.cs" />
-    <Compile Include="src\Racepad2\Core\Geo\Navigation\Core\CornerType.cs" />
-    <Compile Include="src\Racepad2\Core\Geo\Navigation\GPXRouteParser.cs" />
-    <Compile Include="src\Racepad2\Core\Geo\Navigation\GPXException.cs" />
+    <Compile Include="src\Racepad2\Core\Navigation\Math.cs" />
     <Compile Include="src\Racepad2\RouteBrowser.xaml.cs">
       <DependentUpon>RouteBrowser.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\Racepad2\RoutePreview.xaml.cs">
       <DependentUpon>RoutePreview.xaml</DependentUpon>
     </Compile>
-    <Compile Include="src\Racepad2\Route\GradientPair.cs" />
-    <Compile Include="src\Racepad2\Route\Ride.cs" />
-    <Compile Include="src\Racepad2\Route\DriveRoute.cs" />
-    <Compile Include="src\Racepad2\Core\Geo\Navigation\RouteParser.cs" />
     <Compile Include="src\Racepad2\NavigationPage.xaml.cs">
       <DependentUpon>NavigationPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\Racepad2\UI\MapUtil.cs" />
-    <Compile Include="src\Racepad2\UI\RouteItem.cs" />
-    <Compile Include="src\Racepad2\UI\RouteMap.cs" />
-    <Compile Include="src\Racepad2\UI\RoutePreviewMap.cs" />
+    <Compile Include="src\Racepad2\UI\Maps.cs" />
     <Compile Include="src\Racepad2\UI\Sounds.cs" />
-    <Compile Include="src\Racepad2\UI\StatusTiles\AltitudeTile.cs" />
-    <Compile Include="src\Racepad2\UI\StatusTiles\AverageSpeedTile.cs" />
-    <Compile Include="src\Racepad2\UI\StatusTiles\BasicStatusTile.cs" />
-    <Compile Include="src\Racepad2\UI\StatusTiles\DistanceTile.cs" />
-    <Compile Include="src\Racepad2\UI\StatusTiles\MaxSpeedTile.cs" />
-    <Compile Include="src\Racepad2\UI\StatusTiles\SpeedTile.cs" />
-    <Compile Include="src\Racepad2\UI\StatusTiles\TileContainer.cs" />
-    <Compile Include="src\Racepad2\UI\StatusTiles\TimeTile.cs" />
+    <Compile Include="src\Racepad2\UI\StatusTiles.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

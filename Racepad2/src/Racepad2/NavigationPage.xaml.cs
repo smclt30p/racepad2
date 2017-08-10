@@ -1,28 +1,48 @@
-﻿using System;
-using System.Diagnostics;
+﻿/*
+* NavigationPage - Copyright 2017 Supremacy Software
+*     ______  _____  ___  ______  ______  _______  __
+*    / __/ / / / _ \/ _ \/ __/  |/  / _ |/ ___/\ \/ /
+*   _\ \/ /_/ / ___/ , _/ _// /|_/ / __ / /__   \  /
+*  /___/\____/_/  /_/|_/___/_/  /_/_/ |_\___/   /_/.org
+*
+*                 Software Supremacy
+*                 www.supremacy.org
+* 
+* This file is part of Racepad2
+* 
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
+using System;
 using Windows.Devices.Geolocation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
 using Windows.System.Display;
-
-using Racepad2.Route;
-using Racepad2.Geo;
-using Racepad2.Geo.Google;
 using Racepad2.UI;
-using Racepad2.Geo.Navigation;
-using Racepad2.Geo.Navigation.Core;
 using Racepad2.Core;
 using Windows.UI.Xaml.Navigation;
+using Racepad2.Core.Navigation.Route;
+using Racepad2.Navigation.Maths;
+using System.Collections.Generic;
+using Racepad2.UI.Maps;
 
 namespace Racepad2 {
 
     /// <summary>
     /// The main navigation page displaying the map.
     /// </summary>
-    public sealed partial class NavigationPage : Page
-    {
+    public sealed partial class NavigationPage : Page {
 
         private DisplayRequest Display { get; set; }
         private Ride Ride { get; set; }
@@ -46,13 +66,16 @@ namespace Racepad2 {
             PauseDetection = new WalkingList<double>(3);
             Position = new VehiclePosition();
             CourseStatus = CourseStatus.COURSE_NOT_STARTED;
-            LoadSettings();
             Display.RequestActive();
             InitializePauseDetection();
         }
 
+        /// <summary>
+        /// Occurs when the page is loaded. When the page loads,
+        /// the route is loaded and displayed on the map if there
+        /// was a route provided via Frame.Navigate()
+        /// </summary>
         protected override void OnNavigatedTo(NavigationEventArgs e) {
-
             if (e.Parameter == null) {
                 CourseStatus = CourseStatus.COURSE_FINISHED;
             } else {
@@ -67,25 +90,21 @@ namespace Racepad2 {
             StartNavigation();
         }
 
+        /// <summary>
+        /// Initializes the Pause detection algorithm
+        /// </summary>
         private void InitializePauseDetection() {
             for (int i = 0; i < 5; i++) {
                 PauseDetection.Add(Double.MaxValue);
             }
         }
-
-        private void LoadSettings() {
-
-            /* Load settings using SettingsManager */
-
-        }
-
+        
         /// <summary>
         /// Starts the main navigation loop. Parses the GPX file provided
         /// and adds the route to the map, then initializes the GPS receiver
         /// and assings an event handler that handles a position change every second.
         /// </summary>
         private async void StartNavigation() {
-
             GeolocationAccessStatus status = await Geolocator.RequestAccessAsync();
             if (status != GeolocationAccessStatus.Allowed) {
                 UpdateInstruction("GPS Access denied!");
@@ -95,11 +114,9 @@ namespace Racepad2 {
                 DesiredAccuracyInMeters = 1,
                 ReportInterval = 1000,
             };
-
             locator.PositionChanged += Locator_PositionChanged;
-
         }
-
+        
         /// <summary>
         /// Main logic of the navigation system, this is a event fired in <see cref="StartNavigation"/>
         /// every second providing the geographical data to process it here.
@@ -107,17 +124,13 @@ namespace Racepad2 {
         /// <param name="sender">The <see cref="Geolocator"/> that was initialized in <see cref="StartNavigation"/></param>
         /// <param name="args">The argument that holds the positonal arguments</param>
         private void Locator_PositionChanged(Geolocator sender, PositionChangedEventArgs args) {
-
             BasicGeoposition currentLocation = args.Position.Coordinate.Point.Position;
-
             switch (CourseStatus) {
-
                 /* This occurs when the 
                  * vehicle has finished the course
                  */
                 case CourseStatus.COURSE_FINISHED:
-                    if (IsVehicleNotMoving(args)) break;
-
+                    if (!IsVehicleMoving(args)) break;
                     UpdateInstruction("");
                     break;
                 /* This occurs when the vehicle is off of
@@ -126,8 +139,8 @@ namespace Racepad2 {
                 case CourseStatus.COURSE_OFF_COURSE:
                     UpdateInstruction("Off course!");
                     PlayOffCourseSound();
-                    if (IsVehicleNotMoving(args)) break;
-                    if (!IsVehicleOffCourse(currentLocation)) {
+                    if (!IsVehicleMoving(args)) break;
+                    if (!IsVehicleOffCourse(currentLocation, Ride.Path)) {
                         CourseStatus = CourseStatus.COURSE_IN_PROGRESS;
                         Sounds.ResetOffCoursePlayed();
                         break;
@@ -135,7 +148,7 @@ namespace Racepad2 {
                     break;
                 case CourseStatus.COURSE_PAUSED:
                     UpdateInstruction("Course paused");
-                    if (!IsVehicleNotMoving(args)) { 
+                    if (IsVehicleMoving(args)) {
                         CourseStatus = PauseCourseStatus;
                     }
                     return; /* Prevent map and data from updating */
@@ -144,7 +157,7 @@ namespace Racepad2 {
                  * tovards the finish
                  */
                 case CourseStatus.COURSE_LAST_STRAIGHT:
-                    if (IsVehicleNotMoving(args)) break;
+                    if (!IsVehicleMoving(args)) break;
                     double courseEnd = GeoMath.Distance(Route.Path[Route.Path.Count - 1], currentLocation);
                     UpdateInstruction(String.Format("Course ends in {0}m", Math.Round(courseEnd, 0)));
                     if (VehicleIsNearFinish(courseEnd)) {
@@ -154,7 +167,7 @@ namespace Racepad2 {
                 /* This occurs when the vehicle has not started the course */
                 case CourseStatus.COURSE_NOT_STARTED:
                     UpdateInstruction("Head towards start of course");
-                    if (IsVehicleNotMoving(args)) break;
+                    if (!IsVehicleMoving(args)) break;
                     if (IsVehicleNearCourseStart(currentLocation)) {
                         UpdateInstruction("Course started");
                         CourseStatus = CourseStatus.COURSE_IN_PROGRESS;
@@ -164,12 +177,11 @@ namespace Racepad2 {
                  * and the course is started and not finished 
                  */
                 case CourseStatus.COURSE_IN_PROGRESS:
-
-                    if (IsVehicleNotMoving(args)) {
+                    if (!IsVehicleMoving(args)) {
                         CourseStatus = CourseStatus.COURSE_PAUSED;
                         break;
                     }
-                    if (IsVehicleOffCourse(currentLocation)) {
+                    if (IsVehicleOffCourse(currentLocation, Ride.Path)) {
                         CourseStatus = CourseStatus.COURSE_OFF_COURSE;
                         break;
                     }
@@ -179,25 +191,31 @@ namespace Racepad2 {
                     }
                     NextCorner(currentLocation);
                     break;
-                    
             }
-
             Position.Position = args.Position.Coordinate.Point;
             Position.Bearing = args.Position.Coordinate.Heading;
-
             Map.Position = Position;
-            UpdateView(args);        
-
+            UpdateView(args);
         }
 
+        /// <summary>
+        /// Detects if the vehicle is less than 10 meters away from the start
+        /// of the course from all directions.
+        /// </summary>
+        /// <param name="currentLocation">The vehicle's current location</param>
+        /// <returns>True if vehicle is less than 10m away from the start</returns>
         private bool IsVehicleNearCourseStart(BasicGeoposition currentLocation) {
             return GeoMath.Distance(currentLocation, Route.Path[0]) < 10;
         }
 
+        /// <summary>
+        /// When a user clears a corner, this method gets invoked. This method
+        /// displays the messages when a corner is approaching and displays
+        /// the "Turn XXX" message.
+        /// </summary>
+        /// <param name="currentLocation"></param>
         private void NextCorner(BasicGeoposition currentLocation) {
-
             double upcomingCorner = GeoMath.Distance(Route.Corners[CornerOffset].Position, currentLocation);
-
             if (upcomingCorner > 400) {
                 UpdateInstruction("");
             } else if (upcomingCorner > 50) {
@@ -207,89 +225,98 @@ namespace Racepad2 {
                 UpdateInstruction("Turn " + Corner.GetDescriptionForCorner(Route.Corners[CornerOffset]));
                 PlayTurnSound();
             }
-
             /* Corner is less than 20m away, turn in and  switch to next one */
             if (upcomingCorner < 20) {
                 CornerOffset++;
                 Sounds.ResetTurnPlayed();
             }
-
         }
 
+        /// <summary>
+        /// Returns true if the vehicle is within 10 meters of the course finish
+        /// towards the final straight.
+        /// </summary>
+        /// <param name="courseEnd">The remaining l</param>
+        /// <returns>True if the vehicle is within 10m of the finish</returns>
         private bool VehicleIsNearFinish(double courseEnd) {
             return courseEnd < 10;
         }
-
+       
+        /// <summary>
+        /// Returns true if there are no more corners left and the 
+        /// vehicle is moving towards the final straight of the 
+        /// course and the finish.
+        /// </summary>
         private bool IsVehiclePastFinalCorner() {
             return CornerOffset + 1 > Route.Corners.Count;
         }
-
-        private bool IsVehicleOffCourse(BasicGeoposition currentLocation) {
-            return !PolyUtil.isLocationOnPath(currentLocation, Route.Path, false, 20);
+        
+        /// <summary>
+        /// Returns true if the vehicle is off of the current course.
+        /// </summary>
+        /// <param name="currentLocation"></param>
+        /// <returns></returns>
+        private bool IsVehicleOffCourse(BasicGeoposition currentLocation, List<BasicGeoposition> polyline) {
+            return !PolyUtil.isLocationOnPath(currentLocation, polyline , false, 20);
         }
-
-        private bool IsVehicleNotMoving(PositionChangedEventArgs args) {
+        
+        /// <summary>
+        /// Return true if the vehicle's average speed is above 3km/h in
+        /// 3 seconds.
+        /// </summary>
+        private bool IsVehicleMoving(PositionChangedEventArgs args) {
             if (args.Position.Coordinate.Speed != null && args.Position.Coordinate.Speed != Double.NaN) {
                 PauseDetection.Add((double)args.Position.Coordinate.Speed);
             }
-            bool ret = VehicleNotMoving();
-
-            if (ret) {
+            bool ret = VehicleMoving();
+            if (!ret) {
                 if (CourseStatus != CourseStatus.COURSE_PAUSED) {
                     PauseCourseStatus = CourseStatus;
                 }
                 CourseStatus = CourseStatus.COURSE_PAUSED;
             }
-
             return ret;
         }
-
+        
         /// <summary>
         /// Play the turn audio signal. This is played 20 meters
         /// before a turn occurs and plays once.
         /// </summary>
         private async void PlayTurnSound() {
-
             /* Don't play the sound a second time */
             /* Switch to UI thread, Android equivavlent of runOnUiThread() */
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
                 Sounds.PlayTurn();
             });
-
         }
-
+        
         /// <summary>
         /// Play the off course sound. This is played when off the GPX course
         /// and is played each second while off course */
         /// </summary>
         private async void PlayOffCourseSound() {
-
             /*Don't play the off course sound again */
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
                 Sounds.PlayOffCourse();
             });
-
         }
-
+        
         /// <summary>
         /// Sets the text above the four meters in the map view.
         /// </summary>
         /// <param name="data">The text to be set</param>
         private async void UpdateInstruction(string data) {
-      
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
                 Ride.Instruction = data;
             });
-
         }
-
+        
         /// <summary>
         /// Updates the data displayed in the data tiles after a position change event.
         /// 
         /// </summary>
         /// <param name="args">The position changed event argument</param>
         private async void UpdateView(PositionChangedEventArgs args) {
-
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
                 if (args.Position.Coordinate.Speed != null && !Double.IsNaN((double)args.Position.Coordinate.Speed)) {
                     Ride.Speed = (double)args.Position.Coordinate.Speed;
@@ -298,23 +325,19 @@ namespace Racepad2 {
                 }
                 Ride.Elevation = args.Position.Coordinate.Point.Position.Altitude;
             });
-
         }
-
+        
         /// <summary>
         /// Detect if the vehicle is not moving. A vehicle is not considered
         /// moving if the average speed in 3 seconds is not more than 3km/h
         /// </summary>
         /// <returns>If the vehicle is moving</returns>
-        private bool VehicleNotMoving() {
-
+        private bool VehicleMoving() {
             double avg = 0;
             foreach (double d in PauseDetection) {
                 avg += d;
             }
-            return avg < 3;
-
+            return avg > 3;
         }
-     
     }
 }

@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="using:Racepad2.UI"
+    xmlns:ui1="using:Racepad2.UI.Maps"
     mc:Ignorable="d">
 
     <Grid Background="#4d4d4d">
@@ -15,7 +16,7 @@
             <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         
-        <ui:RoutePreviewMap x:Name="Map"/>
+        <ui1:RoutePreviewMap x:Name="Map"/>
         <Grid x:Name="Progress" Background="Black" Opacity="0.5" >
             <ProgressRing Foreground="Blue" IsActive="True" Height="100" Width="100" VerticalAlignment="Center" HorizontalAlignment="Center"></ProgressRing>
         </Grid>
