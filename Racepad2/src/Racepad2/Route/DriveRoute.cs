@@ -48,5 +48,29 @@ namespace Racepad2.Geo.Navigation.Core
 
         }
 
+        public static double GetLength(DriveRoute route) {
+
+            List<BasicGeoposition> Route = route.Path;
+            BasicGeoposition geo1;
+            BasicGeoposition geo2;
+
+            double distance = 0;
+
+            for (int i = 0; ; i++) {
+
+                if (i + 1 >= Route.Count) break;
+
+                geo1 = Route[i];
+                geo2 = Route[i + 1];
+
+                double run = GeoMath.Distance(geo1, geo2);
+                distance += run;
+
+            }
+
+            return distance;
+
+        }
+
     }
 }

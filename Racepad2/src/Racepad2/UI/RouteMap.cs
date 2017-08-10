@@ -13,103 +13,92 @@ using Windows.UI.Xaml.Media;
 namespace Racepad2.UI {
     class RouteMap : Grid {
 
-        /* Microsoft's UWP MapControl needs a service token
-         * for god-knows what. 
-         */
-        private const string MAP_SERVICE_TOKEN = 
-            "4qiurkdgKlTD5Ba1qkOu~7va9tRX0jj2kZEnXqyt8Iw~AmfqIUMnMk6zor_" +
-            "i4yKPKpXJeT3J0FxOsy8Z6BcGKRJ6yZwKRfZsj-ak87UiVnzT";
-
-        /* The actual elements of the attach/detach button and the
-         * map.
-         */
-        private MapControl Map { get; set; }
-        private Button DetachButton { get; set; }
-
-        /* The icon of the user location on the map, 
-         * a small red arrow pointing to north.
-         */
-        private MapIcon UserLocation { get; set; }
-
-        /* Indicates if the view is attached to the
-         * user or its in free pan mode
-         */
-        private bool Attached { get; set; }
-
-        /* The UI dispatcher element 
-         */
-        public CoreDispatcher ViewDispatcher { get; set; }
-
-        private DriveRoute _route;
+        public RouteMap() : base() {
+            InitializeComponent();
+        }
+           
+        public VehiclePosition Position {
+            get {
+                return _position;
+            }
+            set {
+                if (_userPathData == null) _userPathData = new List<BasicGeoposition>();
+                _userPathData.Add(value.Position.Position);
+                UpdatePosition(value);
+                _position = value;
+            }
+        }
 
         public DriveRoute Route {
             get {
                 return _route;
             }
             set {
-
-                List<GradientPair> gradiends = DriveRoute.GetGradientPairsFromRoute(value.Path);
-
-                MapPolyline polyline;
-                Geopath path;
-
-                foreach (GradientPair pair in gradiends) {
-
-                    path = new Geopath(pair.Path);
-                    polyline = new MapPolyline() {
-                        StrokeThickness = 5,
-                        Path = path,
-                        StrokeColor = GetColorFromSlope(pair.SlopePercentage)
-                    };
-
-                    Map.MapElements.Add(polyline);
-
-                }
-
-                UserLocation = new MapIcon() {
-                    Image = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/arrow.png"))
-                };
-
-                Map.MapElements.Add(UserLocation);
-
                 _route = value;
+                SetRoute(value);
             }
         }
 
-        private Color GetColorFromSlope(double percentage) {
+        public CoreDispatcher ViewDispatcher { get; set; }
 
-            if (percentage < -20) return GetSolidColorBrush("00F6FF");
-            if (percentage > 20) return GetSolidColorBrush("FF0000");
-
-            if (percentage >= -20 && percentage <= -15) return GetSolidColorBrush("00FFB0");
-            if (percentage >= -15 && percentage <= -10) return GetSolidColorBrush("00ffc6");
-            if (percentage >= -10 && percentage <= -5) return GetSolidColorBrush("00ff92");
-            if (percentage >= -5 && percentage <= 0) return GetSolidColorBrush("00FF00");
-            if (percentage >= 0 && percentage <= 5) return GetSolidColorBrush("f4ff00");
-            if (percentage >= 5 && percentage <= 10) return GetSolidColorBrush("ffaf00");
-            if (percentage >= 10 && percentage <= 15) return GetSolidColorBrush("ff7900");
-            if (percentage >= 15 && percentage <= 20) return GetSolidColorBrush("ff00e6");
-
-            return Colors.Purple;
-        }
-
-        /* Thanks to Joel Joseph for this method! */
-        public Color GetSolidColorBrush(string hex) {
-            hex = hex.Replace("#", string.Empty);
-            byte a = 255;
-            byte r = (byte)(Convert.ToUInt32(hex.Substring(0, 2), 16));
-            byte g = (byte)(Convert.ToUInt32(hex.Substring(2, 2), 16));
-            byte b = (byte)(Convert.ToUInt32(hex.Substring(4, 2), 16));
-            SolidColorBrush myBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(a, r, g, b));
-            return myBrush.Color;
-        }
-
+        private DriveRoute _route;
+        private VehiclePosition _position;
+        private List<BasicGeoposition> _userPathData;
         private string AttachIcon = null;
         private string DetachIcon = null;
+        private string PathPreviewIcon = null;
+        private MapMode _mode;
 
-        public RouteMap() : base() {
-            InitializeComponent();
+        private MapControl Map { get; set; }
+        private StackPanel ButtonContainer { get; set; }
+        private Button DetachButton { get; set; }
+        private Button PathPreviewButton { get; set; }
+        private MapIcon UserLocation { get; set; }
+        private DriveRoute RouteBackup { get; set; }
+        private bool PathPreview { get; set; } = false;
+
+        private MapMode Mode {
+
+            get {
+                return _mode;
+            }
+            set {
+
+                switch (value) {
+
+                    case MapMode.MAP_ATTACHED:
+                        Map.ZoomInteractionMode = MapInteractionMode.Disabled;
+                        Map.PanInteractionMode = MapPanInteractionMode.Disabled;
+                        Map.TiltInteractionMode = MapInteractionMode.Disabled;
+                        Map.RotateInteractionMode = MapInteractionMode.Disabled;
+                        DetachButton.Content = DetachIcon;
+                        break;
+                    case MapMode.MAP_DETACHED:
+                        Map.ZoomInteractionMode = MapInteractionMode.PointerKeyboardAndControl;
+                        Map.PanInteractionMode = MapPanInteractionMode.Auto;
+                        Map.TiltInteractionMode = MapInteractionMode.PointerKeyboardAndControl;
+                        Map.RotateInteractionMode = MapInteractionMode.PointerKeyboardAndControl;
+                        DetachButton.Content = AttachIcon;
+                        Map.Heading = 0;
+                        break;
+
+                }
+
+                _mode = value;
+
+            }
+
         }
+
+        private enum MapMode {
+            MAP_ATTACHED, MAP_DETACHED
+        }
+
+        private void RemoveAllMapElements() {
+            Map.MapElements.Clear();
+        }
+
+        
 
         /** Initialize the view hierarchy and the component
          * children elements.
@@ -120,10 +109,7 @@ namespace Racepad2.UI {
 
             DetachIcon = System.Convert.ToChar(System.Convert.ToUInt32("0xE17C", 16)).ToString();
             AttachIcon = System.Convert.ToChar(System.Convert.ToUInt32("0xE18D", 16)).ToString();
-
-            /* Misc init */
-
-            Attached = true;
+            PathPreviewIcon = System.Convert.ToChar(System.Convert.ToUInt32("0xE81B", 16)).ToString();
 
             /* Initialize the grid */
 
@@ -133,7 +119,7 @@ namespace Racepad2.UI {
             /* Initialize the map */
 
             Map = new MapControl() {
-                MapServiceToken = MAP_SERVICE_TOKEN,
+                MapServiceToken = MapUtil.MAP_SERVICE_TOKEN,
                 ZoomInteractionMode = MapInteractionMode.Disabled,
                 PanInteractionMode = MapPanInteractionMode.Disabled,
                 TiltInteractionMode = MapInteractionMode.Disabled,
@@ -141,76 +127,165 @@ namespace Racepad2.UI {
                 ColorScheme = MapColorScheme.Dark
             };
 
-            /* Initialize the button */
+            /* Initialize the buttons */
 
-            DetachButton = new Button() {
+            ButtonContainer = new StackPanel() {
                 VerticalAlignment = Windows.UI.Xaml.VerticalAlignment.Top,
                 HorizontalAlignment = Windows.UI.Xaml.HorizontalAlignment.Right,
+                Margin = new Windows.UI.Xaml.Thickness(10),
+                Orientation = Orientation.Horizontal
+            };
+
+            DetachButton = new Button() {
                 FontFamily = new Windows.UI.Xaml.Media.FontFamily("Segoe MDL2 Assets"),
                 FontSize = 20,
                 Content = DetachIcon,
                 Height = 40,
                 Width = 40,
-                Margin = new Windows.UI.Xaml.Thickness(10),
                 Background = new SolidColorBrush(Colors.DarkGray)
             };
 
+            PathPreviewButton = new Button() {
+                FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                FontSize = 20,
+                Content = PathPreviewIcon,
+                Height = 40,
+                Width = 40,
+                Margin = new Windows.UI.Xaml.Thickness(0, 0, 10, 0),
+                Background = new SolidColorBrush(Colors.DarkGray)
+            };
+
+            UserLocation = new MapIcon() {
+                Image = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/arrow.png"))
+            };
+
+            Map.MapElements.Add(UserLocation);
+
+            ButtonContainer.Children.Insert(0, PathPreviewButton);
+            ButtonContainer.Children.Insert(1, DetachButton);
+
             DetachButton.Click += DetachButton_Click;
+            PathPreviewButton.Click += PathPreviewButton_Click;
 
             /* Create view tree */
 
             base.Children.Add(Map);
-            base.Children.Add(DetachButton);
+            base.Children.Add(ButtonContainer);
+
+            Mode = MapMode.MAP_ATTACHED;
+
+        }
+
+        private async void PathPreviewButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e) {
+
+            if (!PathPreview) {
+
+                if (_userPathData.Count < 2) {
+                    return;
+                }
+
+                PathPreview = true;
+                Mode = MapMode.MAP_DETACHED;
+                Map.Heading = 0;
+
+                RouteBackup = Route;
+                RemoveAllMapElements();
+
+                Geopath path = new Geopath(_userPathData);
+                MapPolyline line = new MapPolyline() {
+                    StrokeColor = Colors.Purple,
+                    StrokeThickness = 5,
+                    Path = path
+                };
+
+                GeoboundingBox box = GeoboundingBox.TryCompute(_userPathData);
+
+                Map.MapElements.Add(line);
+                await Map.TrySetViewBoundsAsync(box, new Windows.UI.Xaml.Thickness(20), MapAnimationKind.None);
+                DetachButton.IsEnabled = false;
+
+            } else {
+
+                PathPreview = false;
+                DetachButton.IsEnabled = true;
+                Mode = MapMode.MAP_ATTACHED;
+                RemoveAllMapElements();
+                Map.MapElements.Add(UserLocation);
+                if (RouteBackup != null) {
+                    Route = RouteBackup;
+                }
+            }
 
         }
 
         /** Event occurs when the attach/detach button is pressed
          */
         private void DetachButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e) {
-
-            if (Attached) {
-                Map.ZoomInteractionMode = MapInteractionMode.PointerKeyboardAndControl;
-                Map.PanInteractionMode = MapPanInteractionMode.Auto;
-                Map.TiltInteractionMode = MapInteractionMode.PointerKeyboardAndControl;
-                Map.RotateInteractionMode = MapInteractionMode.PointerKeyboardAndControl;
-                Attached = false;
-                DetachButton.Content = AttachIcon;
+            if (Mode == MapMode.MAP_DETACHED) {
+                Mode = MapMode.MAP_ATTACHED;
             } else {
-                Map.ZoomInteractionMode = MapInteractionMode.Disabled;
-                Map.PanInteractionMode = MapPanInteractionMode.Disabled;
-                Map.TiltInteractionMode = MapInteractionMode.Disabled;
-                Map.RotateInteractionMode = MapInteractionMode.Disabled;
-                Attached = true;
-                DetachButton.Content = DetachIcon;
+                Mode = MapMode.MAP_DETACHED;
             }
-
         }
-    
+
         
+
 
         /* If attached, centers the map onto the users location and 
          * turns the map in the heading direction
          */
-        public async void UpdateMapPosition(Geopoint position, double? bearing) {
+        private async void UpdatePosition(VehiclePosition position) {
 
             await ViewDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => {
 
-                if (Attached) {
-                    await Map.TrySetViewAsync(position, 15, (double)bearing, 0, MapAnimationKind.None);
+                if (Mode == MapMode.MAP_ATTACHED) {
+                    if (position.Bearing != null) {
+                        await Map.TrySetViewAsync(position.Position, 15, (double)position.Bearing, 0, MapAnimationKind.None);
+                    }
                 }
 
-                UserLocation.Location = position;
+                UserLocation.Location = position.Position;
 
             });
-            
+
         }
 
-        public async void PreviewRoute(DriveRoute route) {
+        private void SetRoute(DriveRoute value) {
 
-            GeoboundingBox box = GeoboundingBox.TryCompute(route.Path);
-            await Map.TrySetViewBoundsAsync(box, new Windows.UI.Xaml.Thickness(20), MapAnimationKind.None);
+            List<GradientPair> gradiends = DriveRoute.GetGradientPairsFromRoute(value.Path);
+
+            MapPolyline polyline;
+            Geopath path;
+
+            foreach (GradientPair pair in gradiends) {
+
+                path = new Geopath(pair.Path);
+                polyline = new MapPolyline() {
+                    StrokeThickness = 5,
+                    Path = path,
+                    StrokeColor = MapUtil.GetColorFromSlope(pair.SlopePercentage)
+                };
+
+                Map.MapElements.Add(polyline);
+
+            }
 
         }
 
     }
+
+    public class VehiclePosition {
+        public VehiclePosition() {
+        }
+
+        public VehiclePosition(Geopoint position, double? bearing) {
+            Position = position;
+            Bearing = bearing;
+        }
+
+        public Geopoint Position { get; set; }
+        public double? Bearing { get; set; }
+    }
+
+
 }

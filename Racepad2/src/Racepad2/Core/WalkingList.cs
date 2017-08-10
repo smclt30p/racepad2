@@ -16,10 +16,11 @@ namespace Racepad2.Core {
         }
 
         public new void Add(T element) {
-            if (base.Count > THRESHOLD) {
+            if (base.Count >= THRESHOLD) {
                 base.RemoveAt(0);
             }
             base.Add(element);
         }
+
     }
 }

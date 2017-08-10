@@ -79,6 +79,10 @@ namespace Racepad2.Geo.Navigation
 
             }
 
+            if (positions.Count < 3) {
+                throw new GPXException("GPX must have at lest 2 nodes!");
+            }
+
             return positions;
 
         }

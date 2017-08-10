@@ -27,13 +27,17 @@ namespace Racepad2 {
         }
 
         private void Ride_Click(object sender, RoutedEventArgs e) {
-            Frame.Navigate(typeof(NavigationPage));
+            Frame.Navigate(typeof(NavigationPage), null);
         }
 
         private void History_Click(object sender, RoutedEventArgs e) {
         }
 
         private void Settings_Click(object sender, RoutedEventArgs e) {
+        }
+
+        private void Courses_Click(object sender, RoutedEventArgs e) {
+            Frame.Navigate(typeof(RouteBrowser));
         }
     }
 }

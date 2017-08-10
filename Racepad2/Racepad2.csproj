@@ -95,6 +95,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="src\Racepad2\Core\FileReader.cs" />
     <Compile Include="src\Racepad2\Core\Util\SettingsManager.cs" />
     <Compile Include="src\Racepad2\Core\WalkingList.cs" />
     <Compile Include="src\Racepad2\Core\Geo\Google\PolyUtil.cs" />
@@ -107,6 +108,12 @@
     <Compile Include="src\Racepad2\Core\Geo\Navigation\Core\CornerType.cs" />
     <Compile Include="src\Racepad2\Core\Geo\Navigation\GPXRouteParser.cs" />
     <Compile Include="src\Racepad2\Core\Geo\Navigation\GPXException.cs" />
+    <Compile Include="src\Racepad2\RouteBrowser.xaml.cs">
+      <DependentUpon>RouteBrowser.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="src\Racepad2\RoutePreview.xaml.cs">
+      <DependentUpon>RoutePreview.xaml</DependentUpon>
+    </Compile>
     <Compile Include="src\Racepad2\Route\GradientPair.cs" />
     <Compile Include="src\Racepad2\Route\Ride.cs" />
     <Compile Include="src\Racepad2\Route\DriveRoute.cs" />
@@ -115,7 +122,10 @@
       <DependentUpon>NavigationPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\Racepad2\UI\MapUtil.cs" />
+    <Compile Include="src\Racepad2\UI\RouteItem.cs" />
     <Compile Include="src\Racepad2\UI\RouteMap.cs" />
+    <Compile Include="src\Racepad2\UI\RoutePreviewMap.cs" />
     <Compile Include="src\Racepad2\UI\Sounds.cs" />
     <Compile Include="src\Racepad2\UI\StatusTiles\AltitudeTile.cs" />
     <Compile Include="src\Racepad2\UI\StatusTiles\AverageSpeedTile.cs" />
@@ -170,6 +180,14 @@
     <Page Include="src\Racepad2\NavigationPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="src\Racepad2\RouteBrowser.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="src\Racepad2\RoutePreview.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>

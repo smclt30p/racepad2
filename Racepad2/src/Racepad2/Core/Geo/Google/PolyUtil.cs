@@ -83,65 +83,67 @@ namespace Racepad2.Geo.Google {
             return Math.Cos(a);
         }
 
-        static double havDistance(double lat1, double lat2, double dLng) {
+        private static double havDistance(double lat1, double lat2, double dLng) {
             return hav(lat1 - lat2) + hav(dLng) * cos(lat1) * cos(lat2);
         }
 
-        static double sqrt(double num) {
+        private static double sqrt(double num) {
             return Math.Sqrt(num);
         }
 
-        static double sinFromHav(double h) {
+        private static double sinFromHav(double h) {
             return 2 * sqrt(h * (1 - h));
         }
 
         // Returns hav(asin(x)).
-        static double havFromSin(double x) {
+        private static double havFromSin(double x) {
             double x2 = x * x;
             return x2 / (1 + sqrt(1 - x2)) * .5;
         }
 
-        static double sinSumFromHav(double x, double y) {
+        private static double sinSumFromHav(double x, double y) {
             double a = sqrt(x * (1 - x));
             double b = sqrt(y * (1 - y));
             return 2 * (a + b - 2 * (a * y + b * x));
         }
 
-        static double asin(double a) {
+        private static double asin(double a) {
             return Math.Asin(a);
         }
 
-        /**
-         * Computes inverse haversine. Has good numerical stability around 0.
-         * arcHav(x) == acos(1 - 2 * x) == 2 * asin(sqrt(x)).
-         * The argument must be in [0, 1], and the result is positive.
-         */
-        static double arcHav(double x) {
+        /// <summary>
+        /// Computes inverse haversine. Has good numerical stability around 0.
+        /// arcHav(x) == acos(1 - 2 * x) == 2 * asin(sqrt(x)).
+        /// The argument must be in [0, 1], and the result is positive.
+        /// </summary>
+        /// <param name="x"></param>
+        /// <returns>Inverse haversine</returns>
+        private static double arcHav(double x) {
             return 2 * asin(sqrt(x));
         }
 
         /* End C# layer */
 
-        /**
-         * Returns tan(latitude-at-lng3) on the great circle (lat1, lng1) to (lat2, lng2). lng1==0.
-         * See http://williams.best.vwh.net/avform.htm .
-         */
+        /// <summary>
+        /// Returns tan(latitude-at-lng3) on the great circle(lat1, lng1) to(lat2, lng2). lng1==0.
+        /// See http://williams.best.vwh.net/avform.htm .
+        /// </summary>
         private static double tanLatGC(double lat1, double lat2, double lng2, double lng3) {
             return (tan(lat1) * sin(lng2 - lng3) + tan(lat2) * sin(lng3)) / sin(lng2);
         }
 
-        /**
-         * Returns mercator(latitude-at-lng3) on the Rhumb line (lat1, lng1) to (lat2, lng2). lng1==0.
-         */
+        /// <summary>
+        /// Returns mercator(latitude-at-lng3) on the Rhumb line (lat1, lng1) to (lat2, lng2). lng1==0.
+        /// </summary>
         private static double mercatorLatRhumb(double lat1, double lat2, double lng2, double lng3) {
             return (mercator(lat1) * (lng2 - lng3) + mercator(lat2) * lng3) / lng2;
         }
 
-        /**
-         * Computes whether the vertical segment (lat3, lng3) to South Pole intersects the segment
-         * (lat1, lng1) to (lat2, lng2).
-         * Longitudes are offset by -lng1; the implicit lng1 becomes 0.
-         */
+        /// <summary>
+        /// Computes whether the vertical segment (lat3, lng3) to South Pole intersects the segment
+        /// (lat1, lng1) to (lat2, lng2).
+        /// Longitudes are offset by -lng1; the implicit lng1 becomes 0.
+        /// </summary>
         private static bool intersects(double lat1, double lat2, double lng2,
                                           double lat3, double lng3, bool geodesic) {
             // Both ends on the same side of lng3.
@@ -183,14 +185,14 @@ namespace Racepad2.Geo.Google {
             return containsLocation(point.Latitude, point.Longitude, polygon, geodesic);
         }
 
-        /**
-         * Computes whether the given point lies inside the specified polygon.
-         * The polygon is always considered closed, regardless of whether the last point equals
-         * the first or not.
-         * Inside is defined as not containing the South Pole -- the South Pole is always outside.
-         * The polygon is formed of great circle segments if geodesic is true, and of rhumb
-         * (loxodromic) segments otherwise.
-         */
+        /// <summary>
+        /// Computes whether the given point lies inside the specified polygon.
+        /// The polygon is always considered closed, regardless of whether the last point equals
+        /// the first or not.
+        /// Inside is defined as not containing the South Pole -- the South Pole is always outside.
+        /// The polygon is formed of great circle segments if geodesic is true, and of rhumb
+        /// (loxodromic) segments otherwise.
+        /// </summary>
         public static bool containsLocation(double latitude, double longitude, List<BasicGeoposition> polygon, bool geodesic) {
             int size = polygon.Count;
             if (size == 0) {
@@ -223,41 +225,39 @@ namespace Racepad2.Geo.Google {
         private static double DEFAULT_TOLERANCE = 0.1;  // meters.
         private static double EARTH_RADIUS = 6371009;
 
-        /**
-         * Computes whether the given point lies on or near the edge of a polygon, within a specified
-         * tolerance in meters. The polygon edge is composed of great circle segments if geodesic
-         * is true, and of Rhumb segments otherwise. The polygon edge is implicitly closed -- the
-         * closing segment between the first point and the last point is included.
-         */
+        /// </summary>
+        /// Computes whether the given point lies on or near the edge of a polygon, within a specified
+        /// tolerance in meters. The polygon edge is composed of great circle segments if geodesic
+        /// is true, and of Rhumb segments otherwise. The polygon edge is implicitly closed -- the
+        /// closing segment between the first point and the last point is included.
+        /// </summary>
         public static bool isLocationOnEdge(BasicGeoposition point, List<BasicGeoposition> polygon, bool geodesic,
                                                double tolerance) {
             return isLocationOnEdgeOrPath(point, polygon, true, geodesic, tolerance);
         }
 
-        /**
-         * Same as {@link #isLocationOnEdge(LatLng, List, boolean, double)}
-         * with a default tolerance of 0.1 meters.
-         */
+        /// <summary>
+        /// Same as {@link #isLocationOnEdge(LatLng, List, boolean, double)}
+        /// with a default tolerance of 0.1 meters.
+        /// </summary>
         public static bool isLocationOnEdge(BasicGeoposition point, List<BasicGeoposition> polygon, bool geodesic) {
             return isLocationOnEdge(point, polygon, geodesic, DEFAULT_TOLERANCE);
         }
 
-        /**
-         * Computes whether the given point lies on or near a polyline, within a specified
-         * tolerance in meters. The polyline is composed of great circle segments if geodesic
-         * is true, and of Rhumb segments otherwise. The polyline is not closed -- the closing
-         * segment between the first point and the last point is not included.
-         */
+        /// <summary>
+        /// Computes whether the given point lies on or near a polyline, within a specified
+        /// tolerance in meters. The polyline is composed of great circle segments if geodesic
+        /// is true, and of Rhumb segments otherwise. The polyline is not closed -- the closing
+        /// segment between the first point and the last point is not included.
+        /// </summary>
         public static bool isLocationOnPath(BasicGeoposition point, List<BasicGeoposition> polyline,
                                                bool geodesic, double tolerance) {
             return isLocationOnEdgeOrPath(point, polyline, false, geodesic, tolerance);
         }
 
-        /**
-         * Same as {@link #isLocationOnPath(LatLng, List, boolean, double)}
-         *
-         * with a default tolerance of 0.1 meters.
-         */
+        /// <summary>
+        /// Same as <see cref="isLocationOnPath"/> with a default tolerance of 0.1 meters.
+        /// <summary>
         public static bool isLocationOnPath(BasicGeoposition point, List<BasicGeoposition> polyline,
                                                bool geodesic) {
             return isLocationOnPath(point, polyline, geodesic, DEFAULT_TOLERANCE);
@@ -270,50 +270,48 @@ namespace Racepad2.Geo.Google {
             return (idx >= 0);
         }
 
-        /**
-         * Computes whether (and where) a given point lies on or near a polyline, within a specified tolerance.
-         * The polyline is not closed -- the closing segment between the first point and the last point is not included.
-         * @param point our needle
-         * @param poly our haystack
-         * @param geodesic the polyline is composed of great circle segments if geodesic
-         *                 is true, and of Rhumb segments otherwise
-         * @param tolerance tolerance (in meters)
-         * @return -1 if point does not lie on or near the polyline.
-         *          0 if point is between poly[0] and poly[1] (inclusive),
-         *          1 if between poly[1] and poly[2],
-         *          ...,
-         *          poly.size()-2 if between poly[poly.size() - 2] and poly[poly.size() - 1]
-         */
+        /// <summary>
+        /// Computes whether (and where) a given point lies on or near a polyline, within a specified tolerance.
+        /// The polyline is not closed -- the closing segment between the first point and the last point is not included.
+        /// </summary>
+        /// <param name="point">point our needle</param>
+        /// <param name="poly">poly our haystack</param>
+        /// <param name="geodesic">geodesic the polyline is composed of great circle segments if geodesic
+        ///                        is true, and of Rhumb segments otherwise</param>
+        /// <param name="tolerance">tolerance tolerance (in meters)</param>
+        /// <returns>-1 if point does not lie on or near the polyline.
+        ///          0 if point is between poly[0] and poly[1] (inclusive),
+        ///          1 if between poly[1] and poly[2],
+        ///          ...,
+        ///          poly.size()-2 if between poly[poly.size() - 2] and poly[poly.size() - 1]</returns>
         public static int locationIndexOnPath(BasicGeoposition point, List<BasicGeoposition> poly,
                                                bool geodesic, double tolerance) {
             return locationIndexOnEdgeOrPath(point, poly, false, geodesic, tolerance);
         }
 
-        /**
-         * Same as {@link #locationIndexOnPath(LatLng, List, boolean, double)}
-         *
-         * with a default tolerance of 0.1 meters.
-         */
+        /// <summary>
+        /// Same as <see cref="locationIndexOnPath"/> with a default tolerance of 0.1 meters.
+        /// <summary>
         public static int locationIndexOnPath(BasicGeoposition point, List<BasicGeoposition> polyline,
                                                bool geodesic) {
             return locationIndexOnPath(point, polyline, geodesic, DEFAULT_TOLERANCE);
         }
 
-        /**
-         * Computes whether (and where) a given point lies on or near a polyline, within a specified tolerance.
-         * If closed, the closing segment between the last and first points of the polyline is not considered.
-         * @param point our needle
-         * @param poly our haystack
-         * @param closed whether the polyline should be considered closed by a segment connecting the last point back to the first one
-         * @param geodesic the polyline is composed of great circle segments if geodesic
-         *                 is true, and of Rhumb segments otherwise
-         * @param toleranceEarth tolerance (in meters)
-         * @return -1 if point does not lie on or near the polyline.
-         *          0 if point is between poly[0] and poly[1] (inclusive),
-         *          1 if between poly[1] and poly[2],
-         *          ...,
-         *          poly.size()-2 if between poly[poly.size() - 2] and poly[poly.size() - 1]
-         */
+        /// <summary>
+        /// Computes whether (and where) a given point lies on or near a polyline, within a specified tolerance.
+        /// If closed, the closing segment between the last and first points of the polyline is not considered.
+        /// </summary>
+        /// <param name="point">point our needle</param>
+        /// <param name="poly">poly our haystack</param>
+        /// <param name="closed">closed whether the polyline should be considered closed by a segment connecting the last point back to the first one</param>
+        /// <param name="geodesic">geodesic the polyline is composed of great circle segments if geodesic
+        ///                        is true, and of Rhumb segments otherwise</param>
+        /// <param name="toleranceEarth">toleranceEarth tolerance (in meters)</param>
+        /// <returns>-1 if point does not lie on or near the polyline.
+        ///         0 if point is between poly[0] and poly[1] (inclusive),
+        ///         1 if between poly[1] and poly[2],
+        ///         ...,
+        ///         poly.size()-2 if between poly[poly.size() - 2] and poly[poly.size() - 1]</returns>
         private static int locationIndexOnEdgeOrPath(BasicGeoposition point, List<BasicGeoposition> poly, bool closed,
                                               bool geodesic, double toleranceEarth) {
             int size = poly.Count;
@@ -384,10 +382,10 @@ namespace Racepad2.Geo.Google {
             return -1;
         }
 
-        /**
-         * Returns sin(initial bearing from (lat1,lng1) to (lat3,lng3) minus initial bearing
-         * from (lat1, lng1) to (lat2,lng2)).
-         */
+        /// <summary>
+        /// Returns sin(initial bearing from (lat1,lng1) to (lat3,lng3) minus initial bearing
+        /// from (lat1, lng1) to (lat2,lng2)).
+        /// </summary>
         private static double sinDeltaBearing(double lat1, double lng1, double lat2, double lng2,
                                               double lat3, double lng3) {
             double sinLat1 = sin(lat1);
@@ -436,24 +434,21 @@ namespace Racepad2.Geo.Google {
             return sinSumAlongTrack > 0;  // Compare with half-circle == PI using sign of sin().
         }
 
-        /**
-         * Simplifies the given poly (polyline or polygon) using the Douglas-Peucker decimation
-         * algorithm.  Increasing the tolerance will result in fewer points in the simplified polyline
-         * or polygon.
-         *
-         * When the providing a polygon as input, the first and last point of the list MUST have the
-         * same latitude and longitude (i.e., the polygon must be closed).  If the input polygon is not
-         * closed, the resulting polygon may not be fully simplified.
-         *
-         * The time complexity of Douglas-Peucker is O(n^2), so take care that you do not call this
-         * algorithm too frequently in your code.
-         *
-         * @param poly polyline or polygon to be simplified.  Polygon should be closed (i.e.,
-         *              first and last points should have the same latitude and longitude).
-         * @param tolerance in meters.  Increasing the tolerance will result in fewer points in the
-         *                  simplified poly.
-         * @return a simplified poly produced by the Douglas-Peucker algorithm
-         */
+        /// <summary>
+        /// Simplifies the given poly (polyline or polygon) using the Douglas-Peucker decimation
+        /// algorithm.Increasing the tolerance will result in fewer points in the simplified polyline
+        /// or polygon.
+        /// When the providing a polygon as input, the first and last point of the list MUST have the
+        /// same latitude and longitude(i.e., the polygon must be closed).  If the input polygon is not
+        /// closed, the resulting polygon may not be fully simplified.
+        /// The time complexity of Douglas-Peucker is O(n^2), so take care that you do not call this
+        /// algorithm too frequently in your code.
+        /// </summary>
+        /// <param name="poly">poly polyline or polygon to be simplified.  Polygon should be closed (i.e.,
+        ///                    first and last points should have the same latitude and longitude).</param>
+        /// <param name="tolerance">tolerance in meters.  Increasing the tolerance will result in fewer points in the
+        ///                         simplified poly.</param>
+        /// <returns>a simplified poly produced by the Douglas-Peucker algorithm</returns>
         public static List<BasicGeoposition> simplify(List<BasicGeoposition> poly, double tolerance) {
             int n = poly.Count;
             if (n < 1) {
