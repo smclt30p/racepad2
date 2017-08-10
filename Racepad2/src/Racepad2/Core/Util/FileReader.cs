@@ -27,6 +27,10 @@ using System;
 using System.Threading.Tasks;
 
 using Windows.Storage;
+using Windows.Storage.AccessCache;
+using Windows.Storage.Pickers;
+
+using Racepad2.Core.Util;
 
 
 namespace Racepad2.Core {
@@ -44,6 +48,30 @@ namespace Racepad2.Core {
                 return await FileIO.ReadTextAsync(file);
             }
             return null;
+        }
+
+        /// <summary>
+        /// Load the storage folder from the phone's memory
+        /// where the courses are placed in GPX format.
+        /// </summary>
+        /// <returns></returns>
+        public async static Task<StorageFolder> ReadFolder(String key) {
+            string routeToken = SettingsManager.GetDefaultSettingsManager().GetSetting(key, "null");
+            if (routeToken == "null") {
+                FolderPicker picker = new FolderPicker();
+                picker.FileTypeFilter.Add("*");
+                picker.CommitButtonText = "Select folder";
+                StorageFolder folder = await picker.PickSingleFolderAsync();
+                string token = StorageApplicationPermissions.FutureAccessList.Add(folder);
+                SettingsManager.GetDefaultSettingsManager().PutSetting(key, token);
+                return folder;
+            } else {
+                if (StorageApplicationPermissions.FutureAccessList.ContainsItem(routeToken)) {
+                    return await StorageApplicationPermissions.FutureAccessList.GetFolderAsync(routeToken);
+                } else {
+                    throw new Exception("Folder inaccesible!");
+                }
+            }
         }
 
     }
