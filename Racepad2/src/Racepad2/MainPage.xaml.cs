@@ -25,6 +25,7 @@
 
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Navigation;
 
 namespace Racepad2 {
 
@@ -70,6 +71,10 @@ namespace Racepad2 {
         /// </summary>
         private void Courses_Click(object sender, RoutedEventArgs e) {
             Frame.Navigate(typeof(RouteBrowser));
+        }
+
+        protected override void OnNavigatedTo(NavigationEventArgs e) {
+            Frame.BackStack.Clear();
         }
     }
 }

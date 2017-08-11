@@ -54,15 +54,13 @@ namespace Racepad2 {
         /// <summary>
         /// The main async method to load files into the UI
         /// </summary>
-        private void Load() {
-            Task.Run(async () => {
-                SetShowProgress(Visibility.Visible);
-                StorageFolder folder = await FileReader.ReadFolder("RoutePath");
-                StorageItemQueryResult result = folder.CreateItemQuery();
-                IReadOnlyList<IStorageItem> items = await result.GetItemsAsync();
-                await AddItemsToList(items);
-                SetShowProgress(Visibility.Collapsed);
-            });
+        private async void Load() {
+            StorageFolder folder = await FileReader.ReadFolder("RoutePath");
+            SetShowProgress(Visibility.Visible);
+            StorageItemQueryResult result = folder.CreateItemQuery();
+            IReadOnlyList<IStorageItem> items = await result.GetItemsAsync();
+            AddItemsToList(items);
+            SetShowProgress(Visibility.Collapsed);
         }
 
         /// <summary>
@@ -71,7 +69,7 @@ namespace Racepad2 {
         /// </summary>
         /// <param name="items"></param>
         /// <returns></returns>
-        private async Task<object> AddItemsToList(IReadOnlyList<IStorageItem> items) {
+        private async void AddItemsToList(IReadOnlyList<IStorageItem> items) {
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
                 /* There are no items to display */
                 if (items.Count == 0) {
@@ -91,7 +89,6 @@ namespace Racepad2 {
                 }
                 ItemList.ItemsSource = DisplayedItems;
             });
-            return null;
         }
 
         /// <summary>

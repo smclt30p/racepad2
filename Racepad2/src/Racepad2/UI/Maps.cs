@@ -103,7 +103,6 @@ namespace Racepad2.UI.Maps {
         /// <summary>
         /// The vehicle position on the map, this describes
         /// geoposition and heading.
-        /// TODO: Move the path details off of the UI into the Ride class
         /// </summary>
         public VehiclePosition Position {
             get {

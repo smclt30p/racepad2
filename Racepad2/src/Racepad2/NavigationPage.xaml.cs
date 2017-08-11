@@ -24,18 +24,22 @@
 */
 
 using System;
+using System.Collections.Generic;
+
 using Windows.Devices.Geolocation;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
 using Windows.System.Display;
-using Racepad2.UI;
-using Racepad2.Core;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.Xaml;
+
 using Racepad2.Core.Navigation.Route;
 using Racepad2.Navigation.Maths;
-using System.Collections.Generic;
-using Racepad2.UI.Maps;
+using Racepad2.UI;
+using Racepad2.Core;
+using Windows.UI.Popups;
+using System.Diagnostics;
 
 namespace Racepad2 {
 
@@ -73,6 +77,7 @@ namespace Racepad2 {
         /// was a route provided via Frame.Navigate()
         /// </summary>
         protected override void OnNavigatedTo(NavigationEventArgs e) {
+            /* Attach back listener to handle the back press */
             if (e.Parameter == null) {
                 CourseStatus = CourseStatus.COURSE_FINISHED;
             } else {
@@ -336,5 +341,33 @@ namespace Racepad2 {
             }
             return avg > 3;
         }
+
+        /// <summary>
+        /// This gets called by the main App class
+        /// when the back button is pressed on the NavigationPage
+        /// </summary>
+        internal async void BackRequested() {
+            MessageDialog dialog = new MessageDialog("Exit guided navigation?");
+            UICommand yes = new UICommand("Yes");
+            yes.Id = 1;
+            UICommand no = new UICommand("No");
+            no.Id = 0;
+            dialog.Commands.Add(yes);
+            dialog.Commands.Add(no);
+            IUICommand res = await dialog.ShowAsync();
+            if ((int)res.Id == 1) {
+                Frame.Navigate(typeof(MainPage));
+            } else {
+                return;
+            }
+        }
+
+
     }
 }
+
+/* XmlSerializer serializer = new XmlSerializer(typeof(Session));
+            StringWriter sw = new StringWriter();
+            serializer.Serialize(sw, Session);
+            Debug.WriteLine(sw.ToString());
+*/

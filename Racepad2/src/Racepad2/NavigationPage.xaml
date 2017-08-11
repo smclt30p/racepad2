@@ -32,23 +32,23 @@
                 <ui1:RouteMap x:Name="Map" Grid.ColumnSpan="2"></ui1:RouteMap>
 
                 <StackPanel Grid.Row="1" Grid.ColumnSpan="2">
-                    <TextBlock Margin="7" TextAlignment="Center" Text="{x:Bind Ride.Instruction, Mode=OneWay}"></TextBlock>
+                    <TextBlock Margin="7" TextAlignment="Center" Text="{x:Bind Session.Instruction, Mode=OneWay}"></TextBlock>
                 </StackPanel>
 
                 <Border Margin="5,5,0,0" Grid.Row="2" BorderBrush="White" BorderThickness="0,0,1,0">
-                    <statustiles:TileContainer Tile="SpeedTile" Value="{x:Bind Ride.Speed, Mode=OneWay}"/>
+                    <statustiles:TileContainer Tile="SpeedTile" Value="{x:Bind Session.Speed, Mode=OneWay}"/>
                 </Border>
 
                 <Border Margin="5,0,0,5" Grid.Row="3" BorderBrush="White" BorderThickness="0,1,1,0">
-                    <statustiles:TileContainer Tile="TimeTile" Value="{x:Bind Ride.Time, Mode=OneWay}"/>
+                    <statustiles:TileContainer Tile="TimeTile" Value="{x:Bind Session.Time, Mode=OneWay}"/>
                 </Border>
 
                 <Border Margin="0,5,5,0" Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="0,0,0,0">
-                    <statustiles:TileContainer Tile="AverageSpeedTile" Value="{x:Bind Ride.AverageSpeed, Mode=OneWay}"/>
+                    <statustiles:TileContainer Tile="AverageSpeedTile" Value="{x:Bind Session.AverageSpeed, Mode=OneWay}"/>
                 </Border>
 
                 <Border Margin="0,0,5,5" Grid.Row="3" Grid.Column="2" BorderBrush="White" BorderThickness="0,1,0,0">
-                    <statustiles:TileContainer Tile="DistanceTile" Value="{x:Bind Ride.Distance, Mode=OneWay}"/>
+                    <statustiles:TileContainer Tile="DistanceTile" Value="{x:Bind Session.Distance, Mode=OneWay}"/>
                 </Border>
 
             </Grid>
@@ -74,19 +74,19 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Margin="5,5,0,0" Grid.Row="0" Grid.ColumnSpan="2" BorderBrush="White" BorderThickness="0,0,0,0">
-                    <statustiles:TileContainer Tile="SpeedTile" Value="{x:Bind Ride.Speed, Mode=OneWay}"/>
+                    <statustiles:TileContainer Tile="SpeedTile" Value="{x:Bind Session.Speed, Mode=OneWay}"/>
                 </Border>
 
                 <Border Margin="5,0,0,0" Grid.Row="1" BorderBrush="White" BorderThickness="0,1,1,0">
-                    <statustiles:TileContainer Tile="AverageSpeedTile" Value="{x:Bind Ride.AverageSpeed, Mode=OneWay}"/>
+                    <statustiles:TileContainer Tile="AverageSpeedTile" Value="{x:Bind Session.AverageSpeed, Mode=OneWay}"/>
                 </Border>
 
                 <Border Margin="0,0,5,0" Grid.Row="1" Grid.Column="2" BorderBrush="White" BorderThickness="0,1,0,0">
-                    <statustiles:TileContainer Tile="MaxSpeedTile" Value="{x:Bind Ride.MaxSpeed, Mode=OneWay}"/>
+                    <statustiles:TileContainer Tile="MaxSpeedTile" Value="{x:Bind Session.MaxSpeed, Mode=OneWay}"/>
                 </Border>
 
                 <Border Margin="5,0,0,0" Grid.Row="2" BorderBrush="White" BorderThickness="0,1,1,0">
-                    <statustiles:TileContainer Tile="DistanceTile" Value="{x:Bind Ride.Distance, Mode=OneWay}"/>
+                    <statustiles:TileContainer Tile="DistanceTile" Value="{x:Bind Session.Distance, Mode=OneWay}"/>
                 </Border>
 
                 <Border Margin="5,0,0,0" Grid.Row="3" BorderBrush="White" BorderThickness="0,1,1,0">
@@ -94,11 +94,11 @@
                 </Border>
 
                 <Border Margin="0,0,5,0" Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="0,1,0,0">
-                    <statustiles:TileContainer Tile="TimeTile" Value="{x:Bind Ride.Time, Mode=OneWay}"/>
+                    <statustiles:TileContainer Tile="TimeTile" Value="{x:Bind Session.Time, Mode=OneWay}"/>
                 </Border>
 
                 <Border Margin="0,0,5,0" Grid.Row="3" Grid.Column="2" BorderBrush="White" BorderThickness="0,1,0,0">
-                    <statustiles:TileContainer Tile="AltitudeTile" Value="{x:Bind Ride.Elevation, Mode=OneWay}"/>
+                    <statustiles:TileContainer Tile="AltitudeTile" Value="{x:Bind Session.Elevation, Mode=OneWay}"/>
                 </Border>
 
                 <Border Margin="5,0,0,0" Grid.Row="4" BorderBrush="White" BorderThickness="0,1,1,0">
