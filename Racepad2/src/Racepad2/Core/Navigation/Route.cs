@@ -30,7 +30,7 @@ using System.ComponentModel;
 using Windows.Devices.Geolocation;
 
 using Racepad2.Navigation.Maths;
-
+using System.Xml.Serialization;
 
 namespace Racepad2.Core.Navigation.Route {
 
@@ -180,16 +180,16 @@ namespace Racepad2.Core.Navigation.Route {
     /// <summary>
     /// This class represents a active session that is beign ridden.
     /// </summary>
-    class Session : INotifyPropertyChanged {
+    public class Session : INotifyPropertyChanged {
 
         /// <summary>
         /// The name of the session
         /// </summary>
-        public string Name { get; set; }
+        [XmlAttribute] public string Name { get; set; }
         /// <summary>
         /// The current heading of the vehicle
         /// </summary>
-        public double Heading { get; set; }
+        [XmlIgnore] public double Heading { get; set; }
         /// <summary>
         /// The start of the session
         /// </summary>
@@ -200,15 +200,17 @@ namespace Racepad2.Core.Navigation.Route {
         /// </summary>
         public double MaxSpeed { get; set; }
 
-        private WalkingList<double> _speedList = new WalkingList<double>();
-        private List<BasicGeoposition> _path = new List<BasicGeoposition>();
-        private VehiclePosition _currentPosition;
-        private double _speed = 0; // m/s
-        private double _elevation = 0; // m
-        private double _averageSpeed = 0; // m/s
-        private double _distance = 0; // m
-        private string _insruction = "";
-        private int _time = 0;
+        
+        [XmlIgnore] private WalkingList<double> _speedList = new WalkingList<double>();
+        [XmlIgnore] private List<BasicGeoposition> _path = new List<BasicGeoposition>();
+        [XmlIgnore] private List<double> _elevationProfile = new List<double>();
+        [XmlIgnore] private VehiclePosition _currentPosition;
+        [XmlIgnore] private double _speed = 0; // m/s
+        [XmlIgnore] private double _elevation = 0; // m
+        [XmlIgnore] private double _averageSpeed = 0; // m/s
+        [XmlIgnore] private double _distance = 0; // m
+        [XmlIgnore] private string _insruction = "";
+        [XmlIgnore] private int _time = 0;
 
         /// <summary>
         /// The ridden path of the session
@@ -224,7 +226,7 @@ namespace Racepad2.Core.Navigation.Route {
         /// <summary>
         /// The current position of the vehicle
         /// </summary>
-        public VehiclePosition CurrentPosition {
+        [XmlIgnore] public VehiclePosition CurrentPosition {
             get {
                 if (_currentPosition == null) _currentPosition = new VehiclePosition();
                 return _currentPosition;
@@ -251,7 +253,7 @@ namespace Racepad2.Core.Navigation.Route {
         /// <summary>
         /// The current visual instruction on the screen
         /// </summary>
-        public string Instruction {
+        [XmlIgnore] public string Instruction {
             get {
                 return _insruction;
             }
@@ -273,15 +275,16 @@ namespace Racepad2.Core.Navigation.Route {
                 NotifyPropertyChanged("Distance");
             }
         }
-        
+
         /// <summary>
         /// The current elevation
         /// </summary>
-        public double Elevation {
+        [XmlIgnore] public double Elevation {
             get {
                 return _elevation;
             }
             set {
+                this._elevationProfile.Add(value);
                 this._elevation = value;
                 NotifyPropertyChanged("Elevation");
             }
@@ -290,7 +293,7 @@ namespace Racepad2.Core.Navigation.Route {
         /// <summary>
         /// The current speed
         /// </summary>
-        public double Speed {
+        [XmlIgnore] public double Speed {
             get {
                 return _speed;
             }
@@ -341,6 +344,23 @@ namespace Racepad2.Core.Navigation.Route {
             _averageSpeed = avg / _speedList.Count;
             NotifyPropertyChanged("AverageSpeed");
         }
+
+        /// <summary>
+        /// Serialize a given session to a string for storage
+        /// </summary>
+        public static string Serialize(Session session) {
+            // TODO: Implement Serialize
+            return null;
+        }
+
+        /// <summary>
+        /// Deserialize a data object into a session from storage
+        /// </summary>
+        public static Session Deserialize(string data) {
+            // TODO: Implement Deserialize
+            return null;
+        }
+
     }
 
     /// <summary>
