@@ -58,6 +58,8 @@ namespace Racepad2 {
         private bool CoursePaused { get; set; } = false;
         private CourseStatus PauseCourseStatus { get; set; }
         public static CoreDispatcher MainDispatcher { get; set; }
+        private DispatcherTimer Timer { get; set; }
+        private Geolocator Locator { get; set; }
 
         public NavigationPage() {
             InitializeComponent();
@@ -112,21 +114,36 @@ namespace Racepad2 {
                 UpdateInstruction("GPS Access denied!");
                 return;
             }
-            Geolocator locator = new Geolocator() {
-                DesiredAccuracyInMeters = 1,
-                ReportInterval = 1000,
+            Locator = new Geolocator() {
+                DesiredAccuracyInMeters = 1
             };
-            locator.PositionChanged += Locator_PositionChanged;
+            Timer = new DispatcherTimer();
+            Timer.Tick += Timer_Tick;
+            Timer.Interval = new TimeSpan(0, 0, 1);
+            Timer.Start();
         }
-        
+
         /// <summary>
-        /// Main logic of the navigation system, this is a event fired in <see cref="StartNavigation"/>
+        /// This method is the main trigger for the logic, this method is the callback
+        /// of the time. This method is called every second.
+        /// </summary>
+        private async void Timer_Tick(object sender, object e) {
+            try {
+                Geoposition position = await Locator.GetGeopositionAsync(new TimeSpan(0, 0, 2), new TimeSpan(0, 0, 1));
+                ProcessLocation(position);
+            } catch (Exception) {
+                UpdateInstruction("Searching for GPS...");
+            }
+            
+        }
+
+        /// <summary>
+        /// Main logic of the navigation system, this is the callback called in <see cref="StartNavigation"/>
         /// every second providing the geographical data to process it here.
         /// </summary>
-        /// <param name="sender">The <see cref="Geolocator"/> that was initialized in <see cref="StartNavigation"/></param>
-        /// <param name="args">The argument that holds the positonal arguments</param>
-        private void Locator_PositionChanged(Geolocator sender, PositionChangedEventArgs args) {
-            BasicGeoposition currentLocation = args.Position.Coordinate.Point.Position;
+        /// <param name="args">The current position snapshot</param>
+        private void ProcessLocation(Geoposition args) {
+            BasicGeoposition currentLocation = args.Coordinate.Point.Position;
             switch (CourseStatus) {
                 /* This occurs when the 
                  * vehicle has finished the course
@@ -194,7 +211,7 @@ namespace Racepad2 {
                     NextCorner(currentLocation);
                     break;
             }
-            Session.CurrentPosition = new VehiclePosition(args.Position.Coordinate.Point, args.Position.Coordinate.Heading);
+            Session.CurrentPosition = new VehiclePosition(args.Coordinate.Point, args.Coordinate.Heading);
             Map.Position = Session.CurrentPosition;
             Map.PreviewPath = Session.Path;
             UpdateView(args);
@@ -266,9 +283,9 @@ namespace Racepad2 {
         /// Return true if the vehicle's average speed is above 3km/h in
         /// 3 seconds.
         /// </summary>
-        private bool IsVehicleMoving(PositionChangedEventArgs args) {
-            if (args.Position.Coordinate.Speed != null && args.Position.Coordinate.Speed != Double.NaN) {
-                PauseDetection.Add((double)args.Position.Coordinate.Speed);
+        private bool IsVehicleMoving(Geoposition args) {
+            if (args.Coordinate.Speed != null && args.Coordinate.Speed != Double.NaN) {
+                PauseDetection.Add((double)args.Coordinate.Speed);
             }
             bool ret = VehicleMoving();
             if (!ret) {
@@ -318,14 +335,14 @@ namespace Racepad2 {
         /// 
         /// </summary>
         /// <param name="args">The position changed event argument</param>
-        private async void UpdateView(PositionChangedEventArgs args) {
+        private async void UpdateView(Geoposition args) {
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
-                if (args.Position.Coordinate.Speed != null && !Double.IsNaN((double)args.Position.Coordinate.Speed)) {
-                    Session.Speed = (double)args.Position.Coordinate.Speed;
-                    Session.Distance += (double)args.Position.Coordinate.Speed;
+                if (args.Coordinate.Speed != null && !Double.IsNaN((double)args.Coordinate.Speed)) {
+                    Session.Speed = (double)args.Coordinate.Speed;
+                    Session.Distance += (double)args.Coordinate.Speed;
                     Session.Time += 1;
                 }
-                Session.Elevation = args.Position.Coordinate.Point.Position.Altitude;
+                Session.Elevation = args.Coordinate.Point.Position.Altitude;
             });
         }
         
