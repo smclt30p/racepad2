@@ -75,10 +75,5 @@
 
         </Grid>
         
-        <!--<Button x:Name="History" Click="History_Click" HorizontalAlignment="Stretch" Height="70" FontSize="30" HorizontalContentAlignment="Left" Padding="20,0,0,0">History</Button>
-        <Button HorizontalAlignment="Stretch" Height="70" FontSize="30" HorizontalContentAlignment="Left" Padding="20,0,0,0">Training</Button>
-        <Button HorizontalAlignment="Stretch" Height="70" FontSize="30" HorizontalContentAlignment="Left" Padding="20,0,0,0">My Stats</Button>
-        <Button x:Name="Settings" Click="Settings_Click" HorizontalAlignment="Stretch" Height="70" FontSize="30" HorizontalContentAlignment="Left" Padding="20,0,0,0">Settings</Button>-->
-        
     </StackPanel>
 </Page>
