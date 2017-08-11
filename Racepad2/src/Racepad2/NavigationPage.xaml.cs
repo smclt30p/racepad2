@@ -45,26 +45,23 @@ namespace Racepad2 {
     public sealed partial class NavigationPage : Page {
 
         private DisplayRequest Display { get; set; }
-        private Ride Ride { get; set; }
+        private Session Session { get; set; }
         private DriveRoute Route { get; set; }
         private CourseStatus CourseStatus { get; set; }
         private Sounds Sounds { get; set; }
         private WalkingList<double> PauseDetection { get; set; }
-        private double AccelerometerOffset { get; set; }
         private int CornerOffset { get; set; } = 0;
         private bool CoursePaused { get; set; } = false;
         private CourseStatus PauseCourseStatus { get; set; }
-        private VehiclePosition Position { get; set; }
         public static CoreDispatcher MainDispatcher { get; set; }
 
         public NavigationPage() {
             InitializeComponent();
             Map.ViewDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
             Display = new DisplayRequest();
-            Ride = new Ride();
+            Session = new Session();
             Sounds = new Sounds();
             PauseDetection = new WalkingList<double>(3);
-            Position = new VehiclePosition();
             CourseStatus = CourseStatus.COURSE_NOT_STARTED;
             Display.RequestActive();
             InitializePauseDetection();
@@ -140,7 +137,7 @@ namespace Racepad2 {
                     UpdateInstruction("Off course!");
                     PlayOffCourseSound();
                     if (!IsVehicleMoving(args)) break;
-                    if (!IsVehicleOffCourse(currentLocation, Ride.Path)) {
+                    if (!IsVehicleOffCourse(currentLocation, Session.Path)) {
                         CourseStatus = CourseStatus.COURSE_IN_PROGRESS;
                         Sounds.ResetOffCoursePlayed();
                         break;
@@ -181,7 +178,7 @@ namespace Racepad2 {
                         CourseStatus = CourseStatus.COURSE_PAUSED;
                         break;
                     }
-                    if (IsVehicleOffCourse(currentLocation, Ride.Path)) {
+                    if (IsVehicleOffCourse(currentLocation, Session.Path)) {
                         CourseStatus = CourseStatus.COURSE_OFF_COURSE;
                         break;
                     }
@@ -192,9 +189,9 @@ namespace Racepad2 {
                     NextCorner(currentLocation);
                     break;
             }
-            Position.Position = args.Position.Coordinate.Point;
-            Position.Bearing = args.Position.Coordinate.Heading;
-            Map.Position = Position;
+            Session.CurrentPosition = new VehiclePosition(args.Position.Coordinate.Point, args.Position.Coordinate.Heading);
+            Map.Position = Session.CurrentPosition;
+            Map.PreviewPath = Session.Path;
             UpdateView(args);
         }
 
@@ -307,7 +304,7 @@ namespace Racepad2 {
         /// <param name="data">The text to be set</param>
         private async void UpdateInstruction(string data) {
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
-                Ride.Instruction = data;
+                Session.Instruction = data;
             });
         }
         
@@ -319,11 +316,11 @@ namespace Racepad2 {
         private async void UpdateView(PositionChangedEventArgs args) {
             await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
                 if (args.Position.Coordinate.Speed != null && !Double.IsNaN((double)args.Position.Coordinate.Speed)) {
-                    Ride.Speed = (double)args.Position.Coordinate.Speed;
-                    Ride.Distance += (double)args.Position.Coordinate.Speed;
-                    Ride.Time += 1;
+                    Session.Speed = (double)args.Position.Coordinate.Speed;
+                    Session.Distance += (double)args.Position.Coordinate.Speed;
+                    Session.Time += 1;
                 }
-                Ride.Elevation = args.Position.Coordinate.Point.Position.Altitude;
+                Session.Elevation = args.Position.Coordinate.Point.Position.Altitude;
             });
         }
         

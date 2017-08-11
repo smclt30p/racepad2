@@ -35,7 +35,7 @@ using Windows.UI.Xaml.Controls.Maps;
 using Windows.UI.Xaml.Media;
 
 using Racepad2.Core.Navigation.Route;
-
+using Windows.ApplicationModel.Core;
 
 namespace Racepad2.UI.Maps {
 
@@ -110,8 +110,6 @@ namespace Racepad2.UI.Maps {
                 return _position;
             }
             set {
-                if (_userPathData == null) _userPathData = new List<BasicGeoposition>();
-                _userPathData.Add(value.Position.Position);
                 UpdatePosition(value);
                 _position = value;
             }
@@ -130,10 +128,20 @@ namespace Racepad2.UI.Maps {
             }
         }
 
+        public List<BasicGeoposition> PreviewPath {
+            get {
+                return _previewPath;
+            } set {
+                if (value.Count > 10)
+                    TogglePathPreviewButton(true);
+                _previewPath = value;
+            }
+        }
+
         public CoreDispatcher ViewDispatcher { get; set; }
         private DriveRoute _route;
         private VehiclePosition _position;
-        private List<BasicGeoposition> _userPathData;
+        private List<BasicGeoposition> _previewPath;
         private string AttachIcon = null;
         private string DetachIcon = null;
         private string PathPreviewIcon = null;
@@ -232,7 +240,8 @@ namespace Racepad2.UI.Maps {
                 Height = 40,
                 Width = 40,
                 Margin = new Windows.UI.Xaml.Thickness(0, 0, 10, 0),
-                Background = new SolidColorBrush(Colors.DarkGray)
+                Background = new SolidColorBrush(Colors.DarkGray),
+                IsEnabled = false
             };
             UserLocation = new MapIcon() {
                 Image = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/arrow.png"))
@@ -252,22 +261,20 @@ namespace Racepad2.UI.Maps {
         /// This is triggered when the PathPreview button is pressed.
         /// </summary>
         private async void PathPreviewButton_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e) {
+            if (PreviewPath == null) return;
             if (!PathPreview) {
-                if (_userPathData.Count < 2) {
-                    return;
-                }
                 PathPreview = true;
                 Mode = MapMode.MAP_DETACHED;
                 Map.Heading = 0;
                 RouteBackup = Route;
                 RemoveAllMapElements();
-                Geopath path = new Geopath(_userPathData);
+                Geopath path = new Geopath(PreviewPath);
                 MapPolyline line = new MapPolyline() {
                     StrokeColor = Colors.Purple,
                     StrokeThickness = 5,
                     Path = path
                 };
-                GeoboundingBox box = GeoboundingBox.TryCompute(_userPathData);
+                GeoboundingBox box = GeoboundingBox.TryCompute(PreviewPath);
                 Map.MapElements.Add(line);
                 await Map.TrySetViewBoundsAsync(box, new Windows.UI.Xaml.Thickness(20), MapAnimationKind.None);
                 DetachButton.IsEnabled = false;
@@ -314,10 +321,10 @@ namespace Racepad2.UI.Maps {
         /// </summary>
         /// <param name="value"></param>
         private void SetRoute(DriveRoute value) {
-            List<GradientPair> gradiends = DriveRoute.GetGradientPairsFromRoute(value.Path);
+            List<GeopositionVector> gradiends = DriveRoute.GetVectorsFromRoute(value.Path);
             MapPolyline polyline;
             Geopath path;
-            foreach (GradientPair pair in gradiends) {
+            foreach (GeopositionVector pair in gradiends) {
                 path = new Geopath(pair.Path);
                 polyline = new MapPolyline() {
                     StrokeThickness = 5,
@@ -327,6 +334,13 @@ namespace Racepad2.UI.Maps {
                 Map.MapElements.Add(polyline);
             }
         }
+
+        public async void TogglePathPreviewButton(bool state) {
+            await CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => {
+                PathPreviewButton.IsEnabled = state;
+            });
+        }
+
     }
 
     /// <summary>
@@ -375,10 +389,10 @@ namespace Racepad2.UI.Maps {
         /// </summary>
         /// <param name="value"></param>
         private async void SetRoute(DriveRoute value) {
-            List<GradientPair> gradiends = DriveRoute.GetGradientPairsFromRoute(value.Path);
+            List<GeopositionVector> gradiends = DriveRoute.GetVectorsFromRoute(value.Path);
             MapPolyline polyline;
             Geopath path;
-            foreach (GradientPair pair in gradiends) {
+            foreach (GeopositionVector pair in gradiends) {
                 path = new Geopath(pair.Path);
                 polyline = new MapPolyline() {
                     StrokeThickness = 5,
@@ -392,21 +406,4 @@ namespace Racepad2.UI.Maps {
         }
     }
 
-    /// <summary>
-    /// This class describes a vehicle position on the map.
-    /// </summary>
-    public class VehiclePosition {
-
-        public VehiclePosition() {
-        }
-
-        public VehiclePosition(Geopoint position, double? bearing) {
-            Position = position;
-            Bearing = bearing;
-        }
-
-        public Geopoint Position { get; set; }
-        public double? Bearing { get; set; }
-
-    }
 }
