@@ -118,6 +118,16 @@ namespace Racepad2.Core.Navigation.Route {
             return pairs;
         }
 
+
+        public static double GetAverageSlope(List<BasicGeoposition> path) {
+            List <GradientPair> gradients = GetGradientPairsFromRoute(path);
+            double avgslope = 0;
+            foreach (GradientPair pair in gradients) {
+                avgslope += pair.SlopePercentage;
+            }
+            return Math.Round(avgslope / gradients.Count, 0);
+        }
+
         public static double GetLength(DriveRoute route) {
             List<BasicGeoposition> Route = route.Path;
             BasicGeoposition geo1;

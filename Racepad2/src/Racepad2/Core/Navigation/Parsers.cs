@@ -33,7 +33,7 @@ using Windows.Devices.Geolocation;
 
 using Racepad2.Core.Navigation.Route;
 using Racepad2.Navigation.Maths;
-
+using Windows.Storage;
 
 namespace Racepad2.Core.Navigation.Parsers {
 
@@ -129,7 +129,29 @@ namespace Racepad2.Core.Navigation.Parsers {
             if (angle >= 315 && angle <= 360) return CornerType.LEFT_HAIRPIN;
             return CornerType.UNKNOWN;
         }
-        
+
+        public static async Task<DriveRoute> ParseRouteFromFileAsync(IStorageItem item, RouteFileType type) {
+            
+            switch (type) {
+                case RouteFileType.GPX:
+                    try {
+                        string xml = await FileReader.ReadFile(item);
+                        GPXRouteParser parser = new GPXRouteParser(xml);
+                        return await parser.ParseAsync();
+                    } catch (ParserException e) {
+                        return null;
+                    }
+
+                default:
+                    throw new ParserException("Unknown parse file");
+            }
+
+        }
+
         public abstract Task<DriveRoute> ParseAsync();
+    }
+
+    public enum RouteFileType {
+        GPX
     }
 }

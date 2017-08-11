@@ -28,6 +28,7 @@ using Racepad2.Core.Navigation.Parsers;
 using Racepad2.Core.Navigation.Route;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -47,37 +48,30 @@ namespace Racepad2 {
         }
 
         private DriveRoute Route { get; set; }
-        private List<GradientPair> Gradiends { get; set; }
 
         /// <summary>
         /// This is fired when the page has loaded. This
         /// parses the GPX file and displays the route on the map.
-        /// TODO: Split functionality, this method is monolythic
         /// </summary>
         protected async override void OnNavigatedTo(NavigationEventArgs e) {
             Go.IsEnabled = false;
             IStorageItem item = e.Parameter as IStorageItem;
-            string xml = await FileReader.ReadFile(item);
-            GPXRouteParser parser = new GPXRouteParser(xml);
-            try {
-                Route = await parser.ParseAsync();
-                Map.Route = Route;
-                Gradiends = DriveRoute.GetGradientPairsFromRoute(Route.Path);
-                double distance = Math.Round(DriveRoute.GetLength(Route) / 1000, 2);
-                double avgslope = 0;
-                foreach (GradientPair pair in Gradiends) {
-                    avgslope += pair.SlopePercentage;
-                }
-                avgslope = Math.Round(avgslope / Gradiends.Count, 0);
-                Desc.Text = item.Name.Replace(".gpx", "");
-                Info.Text = String.Format("{0}km - Avg. slope: {1}%", distance, avgslope);
-                Progress.Visibility = Visibility.Collapsed;
-                Go.IsEnabled = true;
-            } catch (ParserException) {
+            /* Step 1: Read the GPX file */
+            Route = await RouteParser.ParseRouteFromFileAsync(item, RouteFileType.GPX);
+            if (Route == null) {
                 Progress.Visibility = Visibility.Collapsed;
                 Desc.Text = "GPX Error";
                 Go.IsEnabled = false;
+                return;
             }
+            Map.Route = Route;
+            /* Step 2: Populate the UI */
+            Desc.Text = item.Name.Replace(".gpx", "");
+            Info.Text = String.Format("{0}km - Avg. slope: {1}%", 
+                Math.Round(DriveRoute.GetLength(Route) / 1000, 2), 
+                DriveRoute.GetAverageSlope(Route.Path));
+            Progress.Visibility = Visibility.Collapsed;
+            Go.IsEnabled = true;
         }
 
         /// <summary>
