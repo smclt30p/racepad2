@@ -30,6 +30,7 @@ using Windows.ApplicationModel.Activation;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Media.Animation;
 using Windows.UI.Xaml.Navigation;
 
 
@@ -62,6 +63,10 @@ namespace Racepad2 {
             if (rootFrame == null) {
                 // Create a Frame to act as the navigation context and navigate to the first page
                 rootFrame = new Frame();
+                rootFrame.ContentTransitions = new TransitionCollection();
+                NavigationThemeTransition trans = new NavigationThemeTransition();
+                trans.DefaultNavigationTransitionInfo = new DrillInNavigationTransitionInfo();
+                rootFrame.ContentTransitions.Add(trans);
                 rootFrame.NavigationFailed += OnNavigationFailed;
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated) { }
                 // Place the frame in the current Window
