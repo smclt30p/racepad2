@@ -96,8 +96,13 @@ namespace Racepad2.Core.Navigation.Route {
         public double EntranceBearing { get; set; }
         public CourseStatus Status { get; set; }
 
-        public static List<GradientPair> GetGradientPairsFromRoute(List<BasicGeoposition> Route) {
-            List<GradientPair> pairs = new List<GradientPair>();
+        /// <summary>
+        /// Splits the given route into vectors for slope calculation.
+        /// </summary>
+        /// <param name="Route">The path to be split</param>
+        /// <returns>A list of vectors from the route</returns>
+        public static List<GeopositionVector> GetVectorsFromRoute(List<BasicGeoposition> Route) {
+            List<GeopositionVector> pairs = new List<GeopositionVector>();
             BasicGeoposition geo1;
             BasicGeoposition geo2;
             for (int i = 0; ; i++) {
@@ -109,7 +114,7 @@ namespace Racepad2.Core.Navigation.Route {
                 double percentage = rise / run * 100;
                 geo1.Altitude = 0;
                 geo2.Altitude = 0;
-                GradientPair pair = new GradientPair();
+                GeopositionVector pair = new GeopositionVector();
                 pair.Path.Add(geo1);
                 pair.Path.Add(geo2);
                 pair.SlopePercentage = percentage;
@@ -118,16 +123,25 @@ namespace Racepad2.Core.Navigation.Route {
             return pairs;
         }
 
-
+        /// <summary>
+        /// Calculates the average slope from a path
+        /// </summary>
+        /// <param name="path">The path to be calculated</param>
+        /// <returns>The average slope in percent</returns>
         public static double GetAverageSlope(List<BasicGeoposition> path) {
-            List <GradientPair> gradients = GetGradientPairsFromRoute(path);
+            List <GeopositionVector> gradients = GetVectorsFromRoute(path);
             double avgslope = 0;
-            foreach (GradientPair pair in gradients) {
+            foreach (GeopositionVector pair in gradients) {
                 avgslope += pair.SlopePercentage;
             }
             return Math.Round(avgslope / gradients.Count, 0);
         }
-
+        
+        /// <summary>
+        /// Returns the length of a given path.
+        /// </summary>
+        /// <param name="route">The route to calculate the distance for</param>
+        /// <returns>The distance in meters</returns>
         public static double GetLength(DriveRoute route) {
             List<BasicGeoposition> Route = route.Path;
             BasicGeoposition geo1;
@@ -144,7 +158,11 @@ namespace Racepad2.Core.Navigation.Route {
         }
     }
 
-    class GradientPair {
+    /// <summary>
+    /// Represents a vector if 2 geopositions with a height difference
+    /// between them.
+    /// </summary>
+    class GeopositionVector {
         public List<BasicGeoposition> Path { get; set; } = new List<BasicGeoposition>();
         public double SlopePercentage { get; set; }
     }
@@ -159,16 +177,32 @@ namespace Racepad2.Core.Navigation.Route {
         COURSE_OFF_COURSE
     }
 
-    class Ride : INotifyPropertyChanged {
+    /// <summary>
+    /// This class represents a active session that is beign ridden.
+    /// </summary>
+    class Session : INotifyPropertyChanged {
 
+        /// <summary>
+        /// The name of the session
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// The current heading of the vehicle
+        /// </summary>
         public double Heading { get; set; }
-        public double Position { get; set; }
+        /// <summary>
+        /// The start of the session
+        /// </summary>
         public BasicGeoposition Start { get; set; }
-        public List<BasicGeoposition> Path { get; set; }
+       
+        /// <summary>
+        /// The maximum speed archived in the session
+        /// </summary>
         public double MaxSpeed { get; set; }
 
         private WalkingList<double> _speedList = new WalkingList<double>();
+        private List<BasicGeoposition> _path = new List<BasicGeoposition>();
+        private VehiclePosition _currentPosition;
         private double _speed = 0; // m/s
         private double _elevation = 0; // m
         private double _averageSpeed = 0; // m/s
@@ -176,6 +210,34 @@ namespace Racepad2.Core.Navigation.Route {
         private string _insruction = "";
         private int _time = 0;
 
+        /// <summary>
+        /// The ridden path of the session
+        /// </summary>
+        public List<BasicGeoposition> Path {
+            get {
+                return _path; 
+            } set {
+                this.Path = _path;
+            }
+        }
+
+        /// <summary>
+        /// The current position of the vehicle
+        /// </summary>
+        public VehiclePosition CurrentPosition {
+            get {
+                if (_currentPosition == null) _currentPosition = new VehiclePosition();
+                return _currentPosition;
+            } set {
+                _currentPosition = value;
+                _path.Add(value.Position.Position);
+                NotifyPropertyChanged("CurrentPosition");
+            }
+        }
+
+        /// <summary>
+        /// The time in seconds from the start of the session
+        /// </summary>
         public int Time {
             get {
                 return _time;
@@ -186,6 +248,9 @@ namespace Racepad2.Core.Navigation.Route {
             }
         }
 
+        /// <summary>
+        /// The current visual instruction on the screen
+        /// </summary>
         public string Instruction {
             get {
                 return _insruction;
@@ -196,6 +261,9 @@ namespace Racepad2.Core.Navigation.Route {
             }
         }
 
+        /// <summary>
+        /// The ridden distance in meters from the start
+        /// </summary>
         public double Distance {
             get {
                 return _distance;
@@ -205,7 +273,10 @@ namespace Racepad2.Core.Navigation.Route {
                 NotifyPropertyChanged("Distance");
             }
         }
-
+        
+        /// <summary>
+        /// The current elevation
+        /// </summary>
         public double Elevation {
             get {
                 return _elevation;
@@ -216,6 +287,9 @@ namespace Racepad2.Core.Navigation.Route {
             }
         }
 
+        /// <summary>
+        /// The current speed
+        /// </summary>
         public double Speed {
             get {
                 return _speed;
@@ -231,6 +305,9 @@ namespace Racepad2.Core.Navigation.Route {
             }
         }
 
+        /// <summary>
+        /// The weighted average speed
+        /// </summary>
         public double AverageSpeed {
             get {
                 return Math.Round(_averageSpeed, 2);
@@ -241,12 +318,20 @@ namespace Racepad2.Core.Navigation.Route {
             }
         }
 
+        /// <summary>
+        /// Screen updating housekeeping
+        /// </summary>
         public event PropertyChangedEventHandler PropertyChanged;
-
         public void NotifyPropertyChanged(string propertyname) {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyname));
         }
 
+        /// <summary>
+        /// This recalculates the average speed from a speed snapshot. 
+        /// There is a list of speeds where the average gets calculated.
+        /// The weighting duration is 10 seconds.
+        /// </summary>
+        /// <param name="value"></param>
         private void RecalcAverageSpeed(double value) {
             _speedList.Add(value);
             double avg = 0;
@@ -257,4 +342,23 @@ namespace Racepad2.Core.Navigation.Route {
             NotifyPropertyChanged("AverageSpeed");
         }
     }
+
+    /// <summary>
+    /// This class describes a vehicle position on the map.
+    /// </summary>
+    public class VehiclePosition {
+
+        public VehiclePosition() {
+        }
+
+        public VehiclePosition(Geopoint position, double? bearing) {
+            Position = position;
+            Bearing = bearing;
+        }
+
+        public Geopoint Position { get; set; }
+        public double? Bearing { get; set; }
+
+    }
+
 }
