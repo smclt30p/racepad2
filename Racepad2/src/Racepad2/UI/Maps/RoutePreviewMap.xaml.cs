@@ -68,7 +68,7 @@ namespace Racepad2.UI.Maps {
         /// </summary>
         /// <param name="value"></param>
         private async void SetRoute(DriveRoute value) {
-            List<GeopositionVector> gradiends = DriveRoute.GetVectorsFromRoute(value.Path);
+            List<GeopositionVector> gradiends = DriveRoute.GetVectorsFromRoute(new Geopath(value.Path));
             MapPolyline polyline;
             Geopath path;
             foreach (GeopositionVector pair in gradiends) {

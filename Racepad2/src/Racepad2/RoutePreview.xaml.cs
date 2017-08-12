@@ -69,7 +69,7 @@ namespace Racepad2 {
             Desc.Text = item.Name.Replace(".gpx", "");
             Info.Text = String.Format("{0}km - Avg. slope: {1}%", 
                 Math.Round(DriveRoute.GetLength(Route) / 1000, 2), 
-                DriveRoute.GetAverageSlope(Route.Path));
+                DriveRoute.GetAverageSlope(new Windows.Devices.Geolocation.Geopath(Route.Path)));
             Progress.Visibility = Visibility.Collapsed;
             Go.IsEnabled = true;
         }

@@ -102,7 +102,8 @@ namespace Racepad2.Core.Navigation.Route {
         /// </summary>
         /// <param name="Route">The path to be split</param>
         /// <returns>A list of vectors from the route</returns>
-        public static List<GeopositionVector> GetVectorsFromRoute(List<BasicGeoposition> Route) {
+        public static List<GeopositionVector> GetVectorsFromRoute(Geopath path) {
+            IReadOnlyList<BasicGeoposition> Route = path.Positions;
             List<GeopositionVector> pairs = new List<GeopositionVector>();
             BasicGeoposition geo1;
             BasicGeoposition geo2;
@@ -129,8 +130,8 @@ namespace Racepad2.Core.Navigation.Route {
         /// </summary>
         /// <param name="path">The path to be calculated</param>
         /// <returns>The average slope in percent</returns>
-        public static double GetAverageSlope(List<BasicGeoposition> path) {
-            List <GeopositionVector> gradients = GetVectorsFromRoute(path);
+        public static double GetAverageSlope(Geopath path) {
+            List<GeopositionVector> gradients = GetVectorsFromRoute(path);
             double avgslope = 0;
             foreach (GeopositionVector pair in gradients) {
                 avgslope += pair.SlopePercentage;
