@@ -33,7 +33,7 @@
                     <ColumnDefinition></ColumnDefinition>
                 </Grid.ColumnDefinitions>
 
-                <Button Background="Transparent">
+                <Button x:Name="ViewMap" Click="ViewMap_Click" Background="Transparent">
                     <StackPanel>
                         <Image Source="ms-appx:///Assets/Icons/icon-map.png"></Image>
                         <TextBlock TextAlignment="Center">View Map</TextBlock>

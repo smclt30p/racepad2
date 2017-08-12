@@ -76,5 +76,12 @@ namespace Racepad2 {
         protected override void OnNavigatedTo(NavigationEventArgs e) {
             Frame.BackStack.Clear();
         }
+
+        /// <summary>
+        /// The VIEW MAP button is pressed
+        /// </summary>
+        private void ViewMap_Click(object sender, RoutedEventArgs e) {
+            Frame.Navigate(typeof(MapViewPage));
+        }
     }
 }

@@ -63,7 +63,6 @@ namespace Racepad2 {
 
         public NavigationPage() {
             InitializeComponent();
-            Map.ViewDispatcher = CoreApplication.MainView.CoreWindow.Dispatcher;
             Display = new DisplayRequest();
             Session = new Session();
             Sounds = new Sounds();

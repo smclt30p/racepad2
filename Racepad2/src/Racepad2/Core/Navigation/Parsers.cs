@@ -54,10 +54,8 @@ namespace Racepad2.Core.Navigation.Parsers {
             List<BasicGeoposition> path = ParsePath();
             List<Corner> corners = ParseCorners(PolyUtil.simplify(path, 5));
             if (path.Count < 2) return route;
-            double entranceBearing = GeoMath.Bearing(path[0], path[1]);
             route.Corners = corners;
             route.Path = path;
-            route.EntranceBearing = entranceBearing;
             return route;
         }
         

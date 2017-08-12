@@ -31,10 +31,12 @@ using Windows.Devices.Geolocation;
 
 using Racepad2.Navigation.Maths;
 using System.Xml.Serialization;
+using Windows.UI;
+using Windows.UI.Xaml.Media;
 
 namespace Racepad2.Core.Navigation.Route {
 
-    class Corner {
+    public class Corner {
 
         public CornerType CornerType { get; set; }
         public BasicGeoposition Position { get; set; }
@@ -78,7 +80,7 @@ namespace Racepad2.Core.Navigation.Route {
     /// <summary>
     /// Enumeration describing the various types of corners detected, used for icons
     /// </summary>
-    enum CornerType {
+    public enum CornerType {
         LEFT_HAIRPIN,
         LEFT_TWO,
         LEFT_THREE,
@@ -89,11 +91,10 @@ namespace Racepad2.Core.Navigation.Route {
         UNKNOWN,
     }
 
-    class DriveRoute {
+    public class DriveRoute {
 
         public List<BasicGeoposition> Path { get; set; }
         public List<Corner> Corners { get; set; }
-        public double EntranceBearing { get; set; }
         public CourseStatus Status { get; set; }
 
         /// <summary>
@@ -156,18 +157,49 @@ namespace Racepad2.Core.Navigation.Route {
             }
             return distance;
         }
+
+        /// <summary>
+        /// Get a color from a percentage slope. This is used to
+        /// visualize slopes on a map.
+        /// </summary>
+        public static Color GetColorFromSlope(double percentage) {
+            if (percentage < -20) return GetSolidColorBrush("0000FF");
+            if (percentage > 20) return GetSolidColorBrush("FF0000");
+            if (percentage >= -20 && percentage <= -15) return GetSolidColorBrush("00fffF");
+            if (percentage >= -15 && percentage <= -10) return GetSolidColorBrush("0060ff");
+            if (percentage >= -10 && percentage <= -5) return GetSolidColorBrush("00ff12");
+            if (percentage >= -5 && percentage <= 0) return GetSolidColorBrush("00ff12");
+            if (percentage >= 0 && percentage <= 5) return GetSolidColorBrush("fffc00");
+            if (percentage >= 5 && percentage <= 10) return GetSolidColorBrush("fffc00");
+            if (percentage >= 10 && percentage <= 15) return GetSolidColorBrush("ff9600");
+            if (percentage >= 15 && percentage <= 20) return GetSolidColorBrush("ff00f0");
+            return Colors.Purple;
+        }
+
+        /// <summary>
+        /// Returns a color from a hex color description format, for ex: #FF00FF
+        /// </summary>
+        public static Color GetSolidColorBrush(string hex) {
+            hex = hex.Replace("#", string.Empty);
+            byte a = 255;
+            byte r = (byte)(Convert.ToUInt32(hex.Substring(0, 2), 16));
+            byte g = (byte)(Convert.ToUInt32(hex.Substring(2, 2), 16));
+            byte b = (byte)(Convert.ToUInt32(hex.Substring(4, 2), 16));
+            SolidColorBrush myBrush = new SolidColorBrush(Windows.UI.Color.FromArgb(a, r, g, b));
+            return myBrush.Color;
+        }
     }
 
     /// <summary>
     /// Represents a vector if 2 geopositions with a height difference
     /// between them.
     /// </summary>
-    class GeopositionVector {
+    public class GeopositionVector {
         public List<BasicGeoposition> Path { get; set; } = new List<BasicGeoposition>();
         public double SlopePercentage { get; set; }
     }
 
-    enum CourseStatus {
+    public enum CourseStatus {
         COURSE_STARTED,
         COURSE_PAUSED,
         COURSE_LAST_STRAIGHT,

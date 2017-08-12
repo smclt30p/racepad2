@@ -104,6 +104,9 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="src\Racepad2\Core\Navigation\Math.cs" />
+    <Compile Include="src\Racepad2\MapViewPage.xaml.cs">
+      <DependentUpon>MapViewPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="src\Racepad2\RouteBrowser.xaml.cs">
       <DependentUpon>RouteBrowser.xaml</DependentUpon>
     </Compile>
@@ -114,7 +117,18 @@
       <DependentUpon>NavigationPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="src\Racepad2\UI\Maps.cs" />
+    <Compile Include="src\Racepad2\UI\BasicStatusTile.xaml.cs">
+      <DependentUpon>BasicStatusTile.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="src\Racepad2\UI\Maps\MapViewMap.xaml.cs">
+      <DependentUpon>MapViewMap.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="src\Racepad2\UI\Maps\RouteMap.xaml.cs">
+      <DependentUpon>RouteMap.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="src\Racepad2\UI\Maps\RoutePreviewMap.xaml.cs">
+      <DependentUpon>RoutePreviewMap.xaml</DependentUpon>
+    </Compile>
     <Compile Include="src\Racepad2\UI\Sounds.cs" />
     <Compile Include="src\Racepad2\UI\StatusTiles.cs" />
   </ItemGroup>
@@ -126,6 +140,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Assets\arrow.png" />
+    <Content Include="Assets\Icons\A.png" />
+    <Content Include="Assets\Icons\B.png" />
     <Content Include="Assets\Icons\icon-history.png" />
     <Content Include="Assets\Icons\icon-intervals.png" />
     <Content Include="Assets\Icons\icon-map.png" />
@@ -133,6 +149,7 @@
     <Content Include="Assets\Icons\icon-settings.png" />
     <Content Include="Assets\Icons\icon-stats.png" />
     <Content Include="Assets\Icons\Logo-racepad.png" />
+    <Content Include="Assets\Icons\V.png" />
     <Content Include="Assets\OffCourse.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -159,6 +176,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="src\Racepad2\MapViewPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="src\Racepad2\NavigationPage.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -168,6 +189,22 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="src\Racepad2\RoutePreview.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="src\Racepad2\UI\BasicStatusTile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="src\Racepad2\UI\Maps\MapViewMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="src\Racepad2\UI\Maps\RouteMap.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="src\Racepad2\UI\Maps\RoutePreviewMap.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
