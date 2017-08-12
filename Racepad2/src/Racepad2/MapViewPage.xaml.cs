@@ -23,16 +23,15 @@
 * limitations under the License.
 */
 
-using Racepad2.Core.Navigation.Route;
-using System.Diagnostics;
-using Windows.UI.Xaml.Controls;
 using System;
-using Racepad2.Core.Navigation.Parsers;
+using System.Collections.Generic;
+
 using Windows.Services.Maps;
 using Windows.Devices.Geolocation;
-using System.Collections.Generic;
 using Windows.UI.Xaml.Controls.Maps;
+using Windows.UI.Xaml.Controls;
 using Windows.Storage.Streams;
+
 
 namespace Racepad2 {
 
