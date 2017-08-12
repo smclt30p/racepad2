@@ -120,6 +120,9 @@
     <Compile Include="src\Racepad2\UI\BasicStatusTile.xaml.cs">
       <DependentUpon>BasicStatusTile.xaml</DependentUpon>
     </Compile>
+    <Compile Include="src\Racepad2\UI\Controls\MenuViaItem.xaml.cs">
+      <DependentUpon>MenuViaItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="src\Racepad2\UI\Maps\MapViewMap.xaml.cs">
       <DependentUpon>MapViewMap.xaml</DependentUpon>
     </Compile>
@@ -193,6 +196,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="src\Racepad2\UI\BasicStatusTile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="src\Racepad2\UI\Controls\MenuViaItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

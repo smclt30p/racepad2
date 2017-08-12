@@ -1,0 +1,32 @@
+﻿<UserControl
+    x:Class="Racepad2.UI.Controls.MenuViaItem"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Racepad2.UI.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DesignHeight="40"
+    d:DesignWidth="300">
+
+    <RelativePanel Height="40">
+        <Image Name="StartImg"
+               Height="20"
+               Width="20"
+               Margin="10,0,0,0"
+               RelativePanel.AlignVerticalCenterWithPanel="True"/>
+        <TextBlock RelativePanel.RightOf="StartImg" 
+                   Name="DescText"
+                                   Margin="10,0,0,0" 
+                                   RelativePanel.AlignVerticalCenterWithPanel="True"/>
+        <Button RelativePanel.AlignVerticalCenterWithPanel="True"
+                                FontFamily="Segoe MDL2 Assets"
+                                Content="&#xE106;"
+                                RelativePanel.AlignRightWithPanel="True"
+                                Background="Transparent"
+                                Height="40"
+                                Width="40"
+                Click="Button_Click"/>
+    </RelativePanel>
+
+</UserControl>

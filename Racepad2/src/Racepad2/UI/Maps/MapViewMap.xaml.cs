@@ -24,7 +24,7 @@
 */
 
 using System;
-
+using System.Collections.Generic;
 using Windows.Devices.Geolocation;
 using Windows.Foundation;
 using Windows.UI;
@@ -49,16 +49,28 @@ namespace Racepad2.UI.Maps {
                 return _path;
             }
             set {
-                //Map.MapElements.Remove(_currentPoly);
+                if (value == null) {
+                    Map.MapElements.Remove(_currentPoly);
+                    _path = value;
+                    return;
+                }
+                Map.MapElements.Remove(_currentPoly);
                 _currentPoly = new MapPolyline() {
-                    StrokeColor = Colors.Aqua,
+                    StrokeColor = Colors.Red,
                     Path = new Geopath(value.Positions),
                     StrokeThickness = 5
                 };
-                //Map.MapElements.Add(_currentPoly);
-                GeoboundingBox box = GeoboundingBox.TryCompute(value.Positions);
+                Map.MapElements.Add(_currentPoly);
                 _path = value;
-                SetMapView(box);
+            }
+        }
+
+        /// <summary>
+        /// The displayed map elements
+        /// </summary>
+        public IList<MapElement> MapElements {
+            get {
+                return Map.MapElements;
             }
         }
 
@@ -108,10 +120,6 @@ namespace Racepad2.UI.Maps {
 
         private Geopath _path;
         private MapPolyline _currentPoly;
-
-        private async void SetMapView(GeoboundingBox box) {
-            await Map.TrySetViewBoundsAsync(box, new Thickness(10, 50, 10, 10), MapAnimationKind.Default);
-        }
 
         /// <summary>
         /// Occurs when the users right clicks on the map

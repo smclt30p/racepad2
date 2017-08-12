@@ -6,6 +6,7 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:maps="using:Racepad2.UI.Maps"
+    xmlns:controls="using:Racepad2.UI.Controls"
     mc:Ignorable="d">
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <Grid.RowDefinitions>
@@ -39,7 +40,7 @@
                     Grid.ColumnSpan="2"
                     Name="Pane" 
                     IsPaneOpen="False"
-                    DisplayMode="Overlay"
+                    DisplayMode="Inline"
                     OpenPaneLength="300"
                     HorizontalAlignment="Left"
                     PaneBackground="#AA000000">
@@ -49,24 +50,13 @@
                                Margin="10,10,10,0" 
                                FontSize="18" 
                                FontWeight="Bold"/>
-                    <RelativePanel Margin="10" Height="40">
-                        <Image Name="StartImg" Source="ms-appx:///Assets/Icons/A.png"
-                               Height="20"
-                               Width="20"
-                               Margin="10,0,0,0"
-                               RelativePanel.AlignVerticalCenterWithPanel="True"/>
-                        <TextBlock RelativePanel.RightOf="StartImg" 
-                                   Margin="10,0,0,0" 
-                                   Text="15.623037, -11.601563"
-                                   RelativePanel.AlignVerticalCenterWithPanel="True"/>
-                        <Button RelativePanel.AlignVerticalCenterWithPanel="True"
-                                FontFamily="Segoe MDL2 Assets"
-                                Content="&#xE106;"
-                                RelativePanel.AlignRightWithPanel="True"
-                                Background="Transparent"
-                                Height="40"
-                                Width="40"/>
-                    </RelativePanel>
+                    <ItemsControl x:Name="WaypointList" ItemsSource="{x:Bind Waypoints, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <controls:MenuViaItem ItemRemoveRequested="MenuViaItem_ItemRemoveRequested" Waypoint="{Binding}" ViaType="{Binding Type}" Text="{Binding Description}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
                 </StackPanel>
             </SplitView.Pane>
             <Grid Width="0"></Grid>

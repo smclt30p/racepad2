@@ -11,7 +11,6 @@
     d:DesignWidth="400">
     <Grid>
         <maps:MapControl MapServiceToken="4qiurkdgKlTD5Ba1qkOu~7va9tRX0jj2kZEnXqyt8Iw~AmfqIUMnMk6zor_i4yKPKpXJeT3J0FxOsy8Z6BcGKRJ6yZwKRfZsj-ak87UiVnzT"
-                         Name="Map"
-                         ColorScheme="Dark"/>
+                         Name="Map"/>
     </Grid>
 </UserControl>
