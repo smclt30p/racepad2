@@ -37,7 +37,7 @@ using Windows.UI.Xaml;
 using Windows.Storage.Streams;
 
 using Racepad2.UI.Controls;
-
+using Racepad2.Core.Navigation.Route;
 
 namespace Racepad2 {
 
@@ -50,7 +50,35 @@ namespace Racepad2 {
         /// The main deciding factor of the whole planner, the
         /// waypoints that have been placed on the map.
         /// </summary>
-        public ObservableCollection<Waypoint> Waypoints { get; set; }
+        private ObservableCollection<Waypoint> Waypoints { get; set; }
+
+        /// <summary>
+        /// The saved route after calculation
+        /// </summary>
+        private Geopath Route {
+            get { return new Geopath(_route.Path); }
+            set {
+                _route = new DriveRoute() {
+                    Path = value.Positions,
+                };
+                _route.Corners = DriveRoute.ParseCorners(_route.Path);
+                _route.Status = CourseStatus.COURSE_NOT_STARTED;
+                double lengthKilometers = Math.Round(DriveRoute.GetLength(_route) / 1000, 2);
+                LenText.Text = String.Format("{0}km", lengthKilometers);
+                DuraText.Text = CalculateNeededTime(lengthKilometers);
+            }
+        }
+
+        /// <summary>
+        /// Convert length in kilometers to visual time needed
+        /// to complete the ride on a MTB
+        /// </summary>
+        private string CalculateNeededTime(double lengthKilometers) {
+            double neededMinutes = lengthKilometers / 23.0 * 60; // length divided by speed times minutes
+            double hours = Math.Round(neededMinutes / 60);
+            double minutes = Math.Round(neededMinutes % 60);
+            return String.Format("{0} h {1} min", hours, minutes);
+        }
 
         public MapViewPage() {
             this.InitializeComponent();
@@ -60,6 +88,8 @@ namespace Racepad2 {
             Map.FromPointSelected += Map_FromPointSelected;
             Map.PivotPointSelected += Map_PivotPointSelected;
         }
+
+        private DriveRoute _route;
 
         /// <summary>
         /// This event is triggered each time the collection changes.
@@ -77,11 +107,14 @@ namespace Racepad2 {
                 Progress.Visibility = Visibility.Collapsed;
                 if (result != null) {
                     Map.Route = result.Route.Path;
+                    Route = result.Route.Path;
+                    RouteInfo.Visibility = Visibility.Visible;
                 } else {
                     Debug.WriteLine("Nothing found!");
                 }
             } else {
                 Map.Route = null;
+                RouteInfo.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -245,8 +278,14 @@ namespace Racepad2 {
 
         }
 
+        /// <summary>
+        /// This occurs when the GO button is pressed
+        /// </summary>
+        private void GoButton_Click(object sender, RoutedEventArgs e) {
+            Frame.Navigate(typeof(NavigationPage), _route);
+        }
     }
-    
+
     /// <summary>
     /// Represents a type of via point
     /// </summary>

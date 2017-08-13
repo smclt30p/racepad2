@@ -51,6 +51,41 @@
             Grid.Column="0"
             Grid.ColumnSpan="2"
             x:Name="Map"/>
+        <Border 
+              Grid.Column="0"
+              Grid.ColumnSpan="2"
+              Grid.Row="1"
+              VerticalAlignment="Bottom"
+            BorderThickness="1"
+            BorderBrush="Red">
+            <Grid Background="#AA333333"
+                  Name="RouteInfo"
+                  Visibility="Collapsed">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <TextBlock Margin="10"
+                           Name="LenText"/>
+                <TextBlock Margin="10,0,10,10" 
+                           Grid.Row="1"
+                           Name="DuraText"/>
+                <Button Grid.Row="0"
+                        Grid.Column="1"
+                        Grid.RowSpan="2"
+                        Content="GO"
+                        Name="GoButton"
+                        Click="GoButton_Click"
+                        VerticalAlignment="Stretch"
+                        HorizontalAlignment="Stretch"
+                        FontSize="24"
+                        Background="Red"/>
+            </Grid>
+        </Border>
         <SplitView  Grid.Row="1"
                     Grid.Column="0" 
                     Grid.ColumnSpan="2"

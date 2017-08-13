@@ -93,8 +93,8 @@ namespace Racepad2.Core.Navigation.Route {
 
     public class DriveRoute {
 
-        public List<BasicGeoposition> Path { get; set; }
-        public List<Corner> Corners { get; set; }
+        public IReadOnlyList<BasicGeoposition> Path { get; set; }
+        public IReadOnlyList<Corner> Corners { get; set; }
         public CourseStatus Status { get; set; }
 
         /// <summary>
@@ -126,6 +126,41 @@ namespace Racepad2.Core.Navigation.Route {
         }
 
         /// <summary>
+        /// Returns all the corners from the route
+        /// </summary>
+        public static IReadOnlyList<Corner> ParseCorners(IReadOnlyList<BasicGeoposition> positions) {
+            List<Corner> corners = new List<Corner>();
+            for (int i = 0; i < positions.Count; i++) {
+                if (i + 3 > positions.Count) break;
+                double angle = GeoMath.Angle(positions[i], positions[i + 1], positions[i + 2]);
+                CornerType type = GetCornerType(angle);
+                if (type == CornerType.STRAIGHT) continue;
+                Corner corner = new Corner();
+                corner.Position = positions[i + 1];
+                corner.CornerType = type;
+                corner.Angle = angle;
+                corner.EntranceBearing = GeoMath.Bearing(positions[i], positions[i + 1]);
+                corner.ExitEaring = GeoMath.Bearing(positions[i + 1], positions[i + 2]);
+                corners.Add(corner);
+            }
+            return corners;
+        }
+
+        /// <summary>
+        /// Returns the type of the corner based on angle
+        /// </summary>
+        private static CornerType GetCornerType(double angle) {
+            if (angle >= 0 && angle <= 45) return CornerType.RIGHT_HAIRPIN;
+            if (angle >= 45 && angle <= 90) return CornerType.RIGHT_TWO;
+            if (angle >= 90 && angle <= 145) return CornerType.RIGHT_THREE;
+            if (angle >= 145 && angle <= 215) return CornerType.STRAIGHT;
+            if (angle >= 215 && angle <= 270) return CornerType.LEFT_THREE;
+            if (angle >= 270 && angle <= 315) return CornerType.LEFT_TWO;
+            if (angle >= 315 && angle <= 360) return CornerType.LEFT_HAIRPIN;
+            return CornerType.UNKNOWN;
+        }
+
+        /// <summary>
         /// Calculates the average slope from a path
         /// </summary>
         /// <param name="path">The path to be calculated</param>
@@ -145,7 +180,7 @@ namespace Racepad2.Core.Navigation.Route {
         /// <param name="route">The route to calculate the distance for</param>
         /// <returns>The distance in meters</returns>
         public static double GetLength(DriveRoute route) {
-            List<BasicGeoposition> Route = route.Path;
+            IReadOnlyList<BasicGeoposition> Route = route.Path;
             BasicGeoposition geo1;
             BasicGeoposition geo2;
             double distance = 0;

@@ -52,7 +52,7 @@ namespace Racepad2.Core.Navigation.Parsers {
         private DriveRoute Parse() {
             DriveRoute route = new DriveRoute();
             List<BasicGeoposition> path = ParsePath();
-            List<Corner> corners = ParseCorners(PolyUtil.simplify(path, 5));
+            IReadOnlyList<Corner> corners = DriveRoute.ParseCorners(PolyUtil.simplify(path, 5));
             if (path.Count < 2) return route;
             route.Corners = corners;
             route.Path = path;
@@ -89,23 +89,6 @@ namespace Racepad2.Core.Navigation.Parsers {
             return positions;
         }
         
-        public List<Corner> ParseCorners(List<BasicGeoposition> positions) {
-            List<Corner> corners = new List<Corner>();
-            for (int i = 0; i < positions.Count; i++) {
-                if (i + 3 > positions.Count) break;
-                double angle = GeoMath.Angle(positions[i], positions[i + 1], positions[i + 2]);
-                CornerType type = GetCornerType(angle);
-                if (type == CornerType.STRAIGHT) continue;
-                Corner corner = new Corner();
-                corner.Position = positions[i + 1];
-                corner.CornerType = type;
-                corner.Angle = angle;
-                corner.EntranceBearing = GeoMath.Bearing(positions[i], positions[i + 1]);
-                corner.ExitEaring = GeoMath.Bearing(positions[i + 1], positions[i + 2]);
-                corners.Add(corner);
-            }
-            return corners;
-        }
     }
     
     class ParserException : Exception {
@@ -116,17 +99,6 @@ namespace Racepad2.Core.Navigation.Parsers {
     }
     
     abstract class RouteParser {
-        
-        protected CornerType GetCornerType(double angle) {
-            if (angle >= 0 && angle <= 45) return CornerType.RIGHT_HAIRPIN;
-            if (angle >= 45 && angle <= 90) return CornerType.RIGHT_TWO;
-            if (angle >= 90 && angle <= 145) return CornerType.RIGHT_THREE;
-            if (angle >= 145 && angle <= 215) return CornerType.STRAIGHT;
-            if (angle >= 215 && angle <= 270) return CornerType.LEFT_THREE;
-            if (angle >= 270 && angle <= 315) return CornerType.LEFT_TWO;
-            if (angle >= 315 && angle <= 360) return CornerType.LEFT_HAIRPIN;
-            return CornerType.UNKNOWN;
-        }
 
         public static async Task<DriveRoute> ParseRouteFromFileAsync(IStorageItem item, RouteFileType type) {
             
