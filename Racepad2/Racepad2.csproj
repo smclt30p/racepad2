@@ -124,6 +124,9 @@
     <Compile Include="src\Racepad2\UI\Controls\MenuViaItem.xaml.cs">
       <DependentUpon>MenuViaItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="src\Racepad2\UI\Controls\TextInputDialog.xaml.cs">
+      <DependentUpon>TextInputDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="src\Racepad2\UI\Maps\MapViewMap.xaml.cs">
       <DependentUpon>MapViewMap.xaml</DependentUpon>
     </Compile>
@@ -153,6 +156,7 @@
     <Content Include="Assets\Icons\icon-settings.png" />
     <Content Include="Assets\Icons\icon-stats.png" />
     <Content Include="Assets\Icons\Logo-racepad.png" />
+    <Content Include="Assets\Icons\S.png" />
     <Content Include="Assets\Icons\V.png" />
     <Content Include="Assets\OffCourse.wav">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -201,6 +205,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="src\Racepad2\UI\Controls\MenuViaItem.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="src\Racepad2\UI\Controls\TextInputDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

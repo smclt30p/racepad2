@@ -37,6 +37,8 @@ using Windows.Storage.Streams;
 
 using Racepad2.UI.Controls;
 using Racepad2.Core.Navigation.Route;
+using Racepad2.Core.Util;
+using System.Xml.Serialization;
 
 namespace Racepad2 {
 
@@ -50,6 +52,11 @@ namespace Racepad2 {
         /// waypoints that have been placed on the map.
         /// </summary>
         private ObservableCollection<Waypoint> Waypoints { get; set; }
+
+        /// <summary>
+        /// The list that holds all the bookmarks on the map
+        /// </summary>
+        private List<Bookmark> Bookmarks { get; set; }
 
         /// <summary>
         /// The saved route after calculation
@@ -81,6 +88,7 @@ namespace Racepad2 {
 
         public MapViewPage() {
             this.InitializeComponent();
+            LoadBookmarks();
             Waypoints = new ObservableCollection<Waypoint>();
             Waypoints.CollectionChanged += Waypoints_CollectionChanged;
             Map.ToPointSelected += Map_ToPointSelected;
@@ -330,8 +338,10 @@ namespace Racepad2 {
         /// Removes everything from a map
         /// </summary>
         private void RemoveAllWaypoints() {
+            foreach (Waypoint point in Waypoints) {
+                Map.MapElements.Remove(point.Icon);
+            }
             Waypoints.Clear();
-            Map.MapElements.Clear();
         }
 
         /// <summary>
@@ -362,6 +372,25 @@ namespace Racepad2 {
             GoButton.IsEnabled = true;
             ReverseWaypoints.IsEnabled = true;
             CenterMap.IsEnabled = true;
+        }
+
+        /// <summary>
+        /// This method loads all the bookmarks and places them on the map
+        /// </summary>
+        public void LoadBookmarks() {
+            SettingsManager manager = SettingsManager.GetDefaultSettingsManager();
+            Bookmarks = manager.ReadList<Bookmark>("Bookmarks");
+            if (Bookmarks == null) {
+                Bookmarks = new List<Bookmark>();
+                manager.WriteList<Bookmark>("Bookmarks", Bookmarks);
+                return;
+            }
+            foreach (Bookmark bookmark in Bookmarks) {
+                MapIcon icon = new MapIcon();
+                icon.Image = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/Icons/S.png"));
+                icon.Title = bookmark.Name;
+                Map.MapElements.Add(icon);
+            }
         }
 
     }
@@ -397,6 +426,12 @@ namespace Racepad2 {
         /// The waypoint icon
         /// </summary>
         public MapIcon Icon { get; set; }
+    }
+
+    class Bookmark {
+        public Geopoint Location { get; set; }
+        public string Name { get; set; }
+        [XmlIgnore] public MapIcon Icon { get; set; }
     }
 
 }
