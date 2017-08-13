@@ -23,6 +23,9 @@
 * limitations under the License.
 */
 
+using System.Collections.Generic;
+using System.IO;
+using System.Xml.Serialization;
 using Windows.Storage;
 
 
@@ -71,6 +74,27 @@ namespace Racepad2.Core.Util {
         public void PutSetting(string key, string value) {
             ApplicationDataContainer Container = this.GetStorageContainer();
             Container.Values[key] = value;
+        }
+
+        /// <summary>
+        /// Reads a list from persistent storage
+        /// </summary>
+        public List<T> ReadList<T>(string key) {
+            string data = GetSetting(key, "null");
+            if (data == "null") return null;
+            XmlSerializer serializer = new XmlSerializer(typeof(List<T>));
+            StringReader reader = new StringReader(data);
+            return (List<T>) serializer.Deserialize(reader);
+        }
+
+        /// <summary>
+        /// Writes a list to persistent storage
+        /// </summary>
+        public void WriteList<T>(string key, List<T> theList) {
+            XmlSerializer serializer = new XmlSerializer(typeof(List<T>));
+            StringWriter writer = new StringWriter();
+            serializer.Serialize(writer, theList);
+            PutSetting(key, writer.ToString());
         }
 
         /// <summary>
