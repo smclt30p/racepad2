@@ -64,7 +64,7 @@ namespace Racepad2 {
                 _route.Corners = DriveRoute.ParseCorners(_route.Path);
                 _route.Status = CourseStatus.COURSE_NOT_STARTED;
                 double lengthKilometers = Math.Round(DriveRoute.GetLength(_route) / 1000, 2);
-                LenText.Text = String.Format("{0}km", lengthKilometers);
+                LenText.Text = String.Format("Distance: {0}km", lengthKilometers);
                 DuraText.Text = CalculateNeededTime(lengthKilometers);
             }
         }
@@ -77,7 +77,7 @@ namespace Racepad2 {
             double neededMinutes = lengthKilometers / 23.0 * 60; // length divided by speed times minutes
             double hours = Math.Round(neededMinutes / 60);
             double minutes = Math.Round(neededMinutes % 60);
-            return String.Format("{0} h {1} min", hours, minutes);
+            return String.Format("Estimated time: {0} h {1} min", hours, minutes);
         }
 
         public MapViewPage() {
@@ -103,18 +103,21 @@ namespace Racepad2 {
                     path.Add(p.Position);
                 }
                 Progress.Visibility = Visibility.Visible;
+                Title.Text = "Routing, please wait...";
                 MapRouteFinderResult result = await MapRouteFinder.GetDrivingRouteFromWaypointsAsync(path);
                 Progress.Visibility = Visibility.Collapsed;
-                if (result != null) {
-                    Map.Route = result.Route.Path;
-                    Route = result.Route.Path;
-                    RouteInfo.Visibility = Visibility.Visible;
-                } else {
-                    Debug.WriteLine("Nothing found!");
+                switch (result.Status) {
+                    case MapRouteFinderStatus.Success:
+                        Title.Text = "To start, press the red start button";
+                        Map.Route = result.Route.Path;
+                        Route = result.Route.Path;
+                        break;
+                    default:
+                        Title.Text = "Routing failed";
+                        break;
                 }
             } else {
                 Map.Route = null;
-                RouteInfo.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -283,6 +286,14 @@ namespace Racepad2 {
         /// </summary>
         private void GoButton_Click(object sender, RoutedEventArgs e) {
             Frame.Navigate(typeof(NavigationPage), _route);
+        }
+
+        /// <summary>
+        /// This occurs when the trash button is pressed, deletes all vias.
+        /// </summary>
+        private void DeleteAllButton_Click(object sender, RoutedEventArgs e) {
+            Waypoints.Clear();
+            Map.MapElements.Clear();
         }
     }
 

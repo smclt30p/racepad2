@@ -114,7 +114,6 @@ namespace Racepad2.UI.Maps {
 
         public MapViewMap() {
             this.InitializeComponent();
-            Map.MapHolding += _innerMap_MapHolding;
             Map.MapRightTapped += _innerMap_MapRightTapped;
         }
 
@@ -126,13 +125,6 @@ namespace Racepad2.UI.Maps {
         /// on some point
         /// </summary>
         private void _innerMap_MapRightTapped(MapControl sender, MapRightTappedEventArgs args) {
-            ShowFlyoutMenu(args.Position, args.Location);
-        }
-
-        /// <summary>
-        /// Occurs when the user long-holds somewhere on the map
-        /// </summary>
-        private void _innerMap_MapHolding(MapControl sender, MapInputEventArgs args) {
             ShowFlyoutMenu(args.Position, args.Location);
         }
 
