@@ -25,9 +25,10 @@
 
 using System.Collections.Generic;
 using System.IO;
+using System;
 using System.Xml.Serialization;
 using Windows.Storage;
-
+using System.Threading.Tasks;
 
 namespace Racepad2.Core.Util {
 
@@ -50,6 +51,8 @@ namespace Racepad2.Core.Util {
             return Instance;
         }
 
+        private List<Setting> SettingsList { get; set; }
+
         /// <summary>
         /// Get a setting from the persistent storage. If the key is not found
         /// the <see cref="def"/> value is retured.
@@ -58,12 +61,10 @@ namespace Racepad2.Core.Util {
         /// <param name="def">The default value if the key is missing</param>
         /// <returns>The stored value of key if found, else default</returns>
         public string GetSetting(string key, string def) {
-            ApplicationDataContainer container = this.GetStorageContainer();
-            if (container.Values[key] == null) {
-                container.Values[key] = def;
-                return def;
+            foreach (Setting setting in SettingsList) {
+                if (setting.Key == key) return setting.Value;
             }
-            return container.Values[key].ToString();
+            return def;
         }
 
         /// <summary>
@@ -72,8 +73,7 @@ namespace Racepad2.Core.Util {
         /// <param name="key">The key</param>
         /// <param name="value">The value</param>
         public void PutSetting(string key, string value) {
-            ApplicationDataContainer Container = this.GetStorageContainer();
-            Container.Values[key] = value;
+            SettingsList.Add(new Setting { Key = key, Value = value });
         }
 
         /// <summary>
@@ -98,19 +98,46 @@ namespace Racepad2.Core.Util {
         }
 
         /// <summary>
-        /// Get the UWP storage container for further usage
+        /// Writes all the settings to the underlying storage
         /// </summary>
-        /// <returns>the UWP storage container</returns>
-        private ApplicationDataContainer GetStorageContainer() {
-            Windows.Storage.ApplicationData Appdata = Windows.Storage.ApplicationData.Current;
-            Windows.Storage.ApplicationDataContainer Settings = Appdata.LocalSettings;
-            Windows.Storage.ApplicationDataContainer Container = null;
-            if (!Settings.Containers.ContainsKey("appdata")) {
-                Container = Settings.CreateContainer("appdata", Windows.Storage.ApplicationDataCreateDisposition.Always);
+        public async void CommitToStorage() {
+            StorageFile settings = await GetSettingsFile();
+            Stream stream = await settings.OpenStreamForWriteAsync();
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Setting>));
+            serializer.Serialize(stream, SettingsList);
+        }
+
+        /// <summary>
+        /// Reads the settings.xml into memory
+        /// </summary>
+        public async void ReadFromStorage() {
+            StorageFile settings = await GetSettingsFile();
+            Stream stream = await settings.OpenStreamForReadAsync();
+            XmlSerializer serializer = new XmlSerializer(typeof(List<Setting>));
+            SettingsList = (List<Setting>) serializer.Deserialize(stream);
+        }
+
+        /// <summary>
+        /// Gets the settings.xml file in %appdata% 
+        /// </summary>
+        private async Task<StorageFile> GetSettingsFile() {
+            StorageFolder appdata = ApplicationData.Current.LocalFolder;
+            StorageFile settings;
+            if (await appdata.TryGetItemAsync("settings.xml") == null) {
+                settings = await appdata.CreateFileAsync("settings.xml", CreationCollisionOption.ReplaceExisting);
+                Stream stream = await settings.OpenStreamForWriteAsync();
+                XmlSerializer serializer = new XmlSerializer(typeof(List<Setting>));
+                serializer.Serialize(stream, SettingsList);
             } else {
-                Container = Settings.Containers["appdata"];
+                settings = await appdata.GetFileAsync("settings.xml");
             }
-            return Container;
+            return settings;
         }
     }
+
+    public class Setting {
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
+
 }

@@ -23,6 +23,7 @@
 * limitations under the License.
 */
 
+using Racepad2.Core.Util;
 using System;
 
 using Windows.ApplicationModel;
@@ -48,6 +49,7 @@ namespace Racepad2 {
         /// </summary>
         public App() {
             this.InitializeComponent();
+            SettingsManager.GetDefaultSettingsManager().ReadFromStorage();
             this.Suspending += OnSuspending;
         }
 
@@ -122,6 +124,7 @@ namespace Racepad2 {
         private void OnSuspending(object sender, SuspendingEventArgs e) {
             var deferral = e.SuspendingOperation.GetDeferral();
             deferral.Complete();
+            SettingsManager.GetDefaultSettingsManager().CommitToStorage();
         }
     }
 }
