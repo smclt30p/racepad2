@@ -72,7 +72,9 @@ namespace Racepad2 {
                 foreach (Waypoint p in Waypoints) {
                     path.Add(p.Position);
                 }
+                Progress.Visibility = Visibility.Visible;
                 MapRouteFinderResult result = await MapRouteFinder.GetDrivingRouteFromWaypointsAsync(path);
+                Progress.Visibility = Visibility.Collapsed;
                 if (result != null) {
                     Map.Route = result.Route.Path;
                 } else {

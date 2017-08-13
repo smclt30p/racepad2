@@ -8,7 +8,7 @@
 	xmlns:maps="using:Racepad2.UI.Maps"
     xmlns:controls="using:Racepad2.UI.Controls"
     mc:Ignorable="d">
-    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <Grid Background="#4d4d4d">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
@@ -30,6 +30,22 @@
                    Text="Route Planner"
                    VerticalAlignment="Center"
                    Margin="10,0,0,0"/>
+        <RelativePanel Name="Progress" Height="40"
+                       Grid.Column="1"
+                       Visibility="Collapsed">
+            <TextBlock Grid.Column="1"
+                       RelativePanel.LeftOf="Spinner"
+                       RelativePanel.AlignVerticalCenterWithPanel="True"
+                       Text="Routing"/>
+            <ProgressRing Width="15"
+                          Height="15"
+                          Margin="10,10,10,10"
+                          Name="Spinner"
+                          RelativePanel.AlignRightWithPanel="True"
+                          RelativePanel.AlignVerticalCenterWithPanel="True"
+                          Foreground="White"
+                          IsActive="True"/>
+        </RelativePanel>
         <maps:MapViewMap 
             Grid.Row="1" 
             Grid.Column="0"
@@ -43,7 +59,7 @@
                     DisplayMode="Inline"
                     OpenPaneLength="300"
                     HorizontalAlignment="Left"
-                    PaneBackground="#AA000000">
+                    PaneBackground="#AA333333">
             <SplitView.Pane>
                 <StackPanel>
                     <TextBlock Text="Route vias" 
