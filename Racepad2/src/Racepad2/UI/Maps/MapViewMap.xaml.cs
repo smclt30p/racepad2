@@ -160,6 +160,9 @@ namespace Racepad2.UI.Maps {
             }
         }
 
+        internal async void SetViewBox(GeoboundingBox box) {
+            await Map.TrySetViewBoundsAsync(box, new Thickness(20), MapAnimationKind.Default);
+        }
     }
 
     /// <summary>

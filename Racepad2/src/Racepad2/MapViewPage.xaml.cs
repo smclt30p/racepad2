@@ -27,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 using Windows.Services.Maps;
 using Windows.Devices.Geolocation;
@@ -87,6 +86,7 @@ namespace Racepad2 {
             Map.ToPointSelected += Map_ToPointSelected;
             Map.FromPointSelected += Map_FromPointSelected;
             Map.PivotPointSelected += Map_PivotPointSelected;
+            InvalidateView();
         }
 
         private DriveRoute _route;
@@ -111,13 +111,16 @@ namespace Racepad2 {
                         Title.Text = "To start, press the red start button";
                         Map.Route = result.Route.Path;
                         Route = result.Route.Path;
+                        ValidateView();
                         break;
                     default:
                         Title.Text = "Routing failed";
+                        InvalidateView();
                         break;
                 }
             } else {
                 Map.Route = null;
+                InvalidateView();
             }
         }
 
@@ -292,9 +295,75 @@ namespace Racepad2 {
         /// This occurs when the trash button is pressed, deletes all vias.
         /// </summary>
         private void DeleteAllButton_Click(object sender, RoutedEventArgs e) {
+            RemoveAllWaypoints();
+        }
+
+        /// <summary>
+        /// This occurs when the reverse button is pressed, reverses the via order
+        /// </summary>
+        private void ReverseWaypoints_Click(object sender, RoutedEventArgs e) {
+            List<Waypoint> oldWaypoints = new List<Waypoint>(Waypoints);
+            RemoveAllWaypoints();
+            for (int i = oldWaypoints.Count - 1, j = 0 ; i >= 0; i--, j++) {
+                // set the icons
+                if (j == 0) {
+                    oldWaypoints[i].Type = ViaType.Start;
+                } else if (j == oldWaypoints.Count - 1) {
+                    oldWaypoints[i].Type = ViaType.End;
+                }
+                AddWaypoint(j, oldWaypoints[i]);
+            }
+        }
+
+        /// <summary>
+        /// Changes the type of the given waypoint
+        /// </summary>
+        private void ChangeWaypointType(Waypoint point, ViaType newtype) {
+            int idx = Waypoints.IndexOf(point);
+            Waypoint old = Waypoints[idx];
+            RemoveWaypoint(point);
+            old.Type = newtype;
+            AddWaypoint(idx, old);
+        }
+
+        /// <summary>
+        /// Removes everything from a map
+        /// </summary>
+        private void RemoveAllWaypoints() {
             Waypoints.Clear();
             Map.MapElements.Clear();
         }
+
+        /// <summary>
+        /// This centers the active path in view
+        /// </summary>
+        private void CenterMap_Click(object sender, RoutedEventArgs e) {
+            GeoboundingBox box = GeoboundingBox.TryCompute(_route.Path);
+            Map.SetViewBox(box);
+        }
+
+        /// <summary>
+        /// Invalides the UI
+        /// </summary>
+        private void InvalidateView() {
+            DeleteAllButton.IsEnabled = false;
+            GoButton.IsEnabled = false;
+            ReverseWaypoints.IsEnabled = false;
+            CenterMap.IsEnabled = false;
+            DuraText.Text = "";
+            LenText.Text = "";
+        }
+        
+        /// <summary>
+        /// Validates the UI
+        /// </summary>
+        private void ValidateView() {
+            DeleteAllButton.IsEnabled = true;
+            GoButton.IsEnabled = true;
+            ReverseWaypoints.IsEnabled = true;
+            CenterMap.IsEnabled = true;
+        }
+
     }
 
     /// <summary>
