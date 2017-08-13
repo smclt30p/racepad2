@@ -33,6 +33,7 @@ using Racepad2.Navigation.Maths;
 using System.Xml.Serialization;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
+using System.IO;
 
 namespace Racepad2.Core.Navigation.Route {
 
@@ -258,10 +259,6 @@ namespace Racepad2.Core.Navigation.Route {
         /// The current heading of the vehicle
         /// </summary>
         [XmlIgnore] public double Heading { get; set; }
-        /// <summary>
-        /// The start of the session
-        /// </summary>
-        public BasicGeoposition Start { get; set; }
        
         /// <summary>
         /// The maximum speed archived in the session
@@ -417,16 +414,19 @@ namespace Racepad2.Core.Navigation.Route {
         /// Serialize a given session to a string for storage
         /// </summary>
         public static string Serialize(Session session) {
-            // TODO: Implement Serialize
-            return null;
+            XmlSerializer serializer = new XmlSerializer(typeof(Session));
+            StringWriter writer = new StringWriter();
+            serializer.Serialize(writer, session);
+            return writer.ToString();
         }
 
         /// <summary>
         /// Deserialize a data object into a session from storage
         /// </summary>
         public static Session Deserialize(string data) {
-            // TODO: Implement Deserialize
-            return null;
+            XmlSerializer serializer = new XmlSerializer(typeof(Session));
+            StringReader reader = new StringReader(data);
+            return (Session) serializer.Deserialize(reader);
         }
 
     }
