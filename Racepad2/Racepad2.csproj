@@ -95,6 +95,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="src\Racepad2\Core\Util\Conversion.cs" />
     <Compile Include="src\Racepad2\Core\Navigation\Parsers.cs" />
     <Compile Include="src\Racepad2\Core\Navigation\Route.cs" />
     <Compile Include="src\Racepad2\Core\Util\FileReader.cs" />

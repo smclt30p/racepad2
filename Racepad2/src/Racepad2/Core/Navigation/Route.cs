@@ -26,14 +26,16 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Xml.Serialization;
+using System.IO;
 
 using Windows.Devices.Geolocation;
-
-using Racepad2.Navigation.Maths;
-using System.Xml.Serialization;
 using Windows.UI;
 using Windows.UI.Xaml.Media;
-using System.IO;
+
+using Racepad2.Core.Util.Conversions;
+using Racepad2.Navigation.Maths;
+
 
 namespace Racepad2.Core.Navigation.Route {
 
@@ -265,6 +267,15 @@ namespace Racepad2.Core.Navigation.Route {
         /// </summary>
         public double MaxSpeed { get; set; }
 
+        /// <summary>
+        /// The time that the session has been started, unix time
+        /// </summary>
+        public double StartTime { get; set; }
+
+        /// <summary>
+        /// The time that the session has been closed, unix time
+        /// </summary>
+        public double EndTime { get; set; }
         
         [XmlIgnore] private WalkingList<double> _speedList = new WalkingList<double>();
         [XmlIgnore] private List<BasicGeoposition> _path = new List<BasicGeoposition>();
@@ -276,6 +287,10 @@ namespace Racepad2.Core.Navigation.Route {
         [XmlIgnore] private double _distance = 0; // m
         [XmlIgnore] private string _insruction = "";
         [XmlIgnore] private int _time = 0;
+
+        public Session() {
+            StartTime = TimeConversions.CurrentTimeSeconds();
+        }
 
         /// <summary>
         /// The ridden path of the session
@@ -384,6 +399,20 @@ namespace Racepad2.Core.Navigation.Route {
                 _averageSpeed = value;
                 NotifyPropertyChanged("AverageSpeed");
             }
+        }
+
+        /// <summary>
+        /// The visual time stamp when the session started 
+        /// in the format "dd/MM/yyyy HH:mm:ss"
+        /// </summary>
+        public string TimeStamp { get; set; }
+
+        /// <summary>
+        /// Closes the session
+        /// </summary>
+        public void Close() {
+            EndTime = TimeConversions.CurrentTimeSeconds();
+            TimeStamp = TimeConversions.ISOTimestamp(StartTime);
         }
 
         /// <summary>

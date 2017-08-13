@@ -33,13 +33,13 @@ using Windows.ApplicationModel.Core;
 using Windows.System.Display;
 using Windows.UI.Xaml.Navigation;
 using Windows.UI.Xaml;
+using Windows.UI.Popups;
 
 using Racepad2.Core.Navigation.Route;
 using Racepad2.Navigation.Maths;
 using Racepad2.UI;
 using Racepad2.Core;
-using Windows.UI.Popups;
-using System.Diagnostics;
+using Racepad2.Core.Util;
 
 namespace Racepad2 {
 
@@ -363,27 +363,50 @@ namespace Racepad2 {
         /// when the back button is pressed on the NavigationPage
         /// </summary>
         internal async void BackRequested() {
-            MessageDialog dialog = new MessageDialog("Exit guided navigation?");
-            UICommand yes = new UICommand("Yes");
-            yes.Id = 1;
-            UICommand no = new UICommand("No");
-            no.Id = 0;
+            MessageDialog dialog = new MessageDialog("Save session?");
+            dialog.Title = "Exiting session";
+            UICommand yes = new UICommand("Yes") {
+                Id = 1
+            };
+            UICommand no = new UICommand("No") {
+                Id = 0
+            };
             dialog.Commands.Add(yes);
             dialog.Commands.Add(no);
             IUICommand res = await dialog.ShowAsync();
             if ((int)res.Id == 1) {
-                Frame.Navigate(typeof(MainPage));
+                SaveAndExit();
             } else {
-                return;
+                ExitNavigation();
             }
         }
 
+        /// <summary>
+        /// Occurs when the user confirms that he wants to leave the navigation
+        /// saving the session
+        /// </summary>
+        private void SaveAndExit() {
+            Session.Close();
+            Session.Name = "Test session";
+            SettingsManager manager = SettingsManager.GetDefaultSettingsManager();
+            List<Session> sessions = manager.ReadList<Session>("Sessions");
+            if (sessions == null) {
+                sessions = new List<Session>();
+                sessions.Add(Session);
+                manager.WriteList<Session>("Sessions", sessions);
+                return;
+            }
+            sessions.Add(Session);
+            manager.WriteList<Session>("Sessions", sessions);
+            ExitNavigation();
+        }
 
+        /// <summary>
+        /// Occurs when the user confirms that he wants to leave the navigation
+        /// without saving the session
+        /// </summary>
+        private void ExitNavigation() {
+            Frame.Navigate(typeof(MainPage));
+        }
     }
 }
-
-/* XmlSerializer serializer = new XmlSerializer(typeof(Session));
-            StringWriter sw = new StringWriter();
-            serializer.Serialize(sw, Session);
-            Debug.WriteLine(sw.ToString());
-*/
