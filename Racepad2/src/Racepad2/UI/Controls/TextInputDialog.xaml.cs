@@ -1,39 +1,46 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+﻿/*
+* TextInputDialog - Copyright 2017 Supremacy Software
+*     ______  _____  ___  ______  ______  _______  __
+*    / __/ / / / _ \/ _ \/ __/  |/  / _ |/ ___/\ \/ /
+*   _\ \/ /_/ / ___/ , _/ _// /|_/ / __ / /__   \  /
+*  /___/\____/_/  /_/|_/___/_/  /_/_/ |_\___/   /_/.org
+*
+*                 Software Supremacy
+*                 www.supremacy.org
+* 
+* This file is part of Racepad2
+* 
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 
 
 namespace Racepad2.UI.Controls {
     public sealed partial class TextInputDialog : ContentDialog {
 
-        public readonly DependencyProperty TextProperty = DependencyProperty.Register("InnerText", typeof(string), typeof(TextInputDialog), null);
-        public string InnerText {
-            get {
-                return (string) GetValue(TextProperty);
-            }
-            set {
-                SetValue(TextProperty, value);
-            }
+        public string InnerText { get; set; } = null;
+
+        public TextInputDialog(string title) {
+            this.InitializeComponent();
+            base.Title = title;
+            Box.TextChanged += Box_TextChanged;
         }
 
-        public TextInputDialog() {
-            this.InitializeComponent();
-        }
-
-        public TextInputDialog(string v) {
-            base.Title = v;
-            this.InitializeComponent();
+        private void Box_TextChanged(object sender, TextChangedEventArgs e) {
+            TextBox source = (TextBox)sender;
+            InnerText = source.Text;
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e) {
