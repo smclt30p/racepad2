@@ -156,6 +156,7 @@
     <Content Include="Assets\Icons\icon-settings.png" />
     <Content Include="Assets\Icons\icon-stats.png" />
     <Content Include="Assets\Icons\Logo-racepad.png" />
+    <Content Include="Assets\Icons\P.png" />
     <Content Include="Assets\Icons\S.png" />
     <Content Include="Assets\Icons\V.png" />
     <Content Include="Assets\OffCourse.wav">

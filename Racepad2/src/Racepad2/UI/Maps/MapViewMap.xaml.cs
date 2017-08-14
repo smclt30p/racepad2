@@ -75,6 +75,20 @@ namespace Racepad2.UI.Maps {
         }
 
         /// <summary>
+        /// The camera for backup
+        /// </summary>
+        public Camera Camera {
+            get {
+                Camera cam = new Camera();
+                cam.Location = Map.ActualCamera.Location.Position;
+                cam.Heading = Map.ActualCamera.Heading;
+                return cam;
+            } set {
+                SetMapCamera(value);
+            }
+        }
+
+        /// <summary>
         /// Define the FromPointSelected event
         /// </summary>
         public delegate void FromPointSelectedDelegate(object sender, PointSelectedEventArgs args);
@@ -181,6 +195,10 @@ namespace Racepad2.UI.Maps {
         internal async void SetViewBox(GeoboundingBox box) {
             await Map.TrySetViewBoundsAsync(box, new Thickness(20), MapAnimationKind.Default);
         }
+
+        private async void SetMapCamera(Camera camera) {
+            await Map.TrySetViewAsync(new Geopoint(camera.Location), 13, null, null, MapAnimationKind.None);
+        }
     }
 
     /// <summary>
@@ -188,6 +206,14 @@ namespace Racepad2.UI.Maps {
     /// </summary>
     public class PointSelectedEventArgs : EventArgs {
         public Geopoint Location { get; set; }
+    }
+
+    /// <summary>
+    /// Defines a map camera
+    /// </summary>
+    public class Camera {
+        public BasicGeoposition Location { get; set; }
+        public double Heading { get; set; }
     }
 
 }

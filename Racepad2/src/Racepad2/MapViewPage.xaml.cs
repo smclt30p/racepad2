@@ -40,6 +40,9 @@ using Racepad2.Core.Navigation.Route;
 using Racepad2.Core.Util;
 using System.Xml.Serialization;
 using System.Diagnostics;
+using Windows.UI.Xaml.Navigation;
+using Racepad2.UI.Maps;
+using System.IO;
 
 namespace Racepad2 {
 
@@ -95,8 +98,10 @@ namespace Racepad2 {
             Map.FromPointSelected += Map_FromPointSelected;
             Map.PivotPointSelected += Map_PivotPointSelected;
             Map.BookmarkAdded += Map_BookmarkAdded;
+            RestoreCamera();
             InvalidateView();
             LoadBookmarks();
+            AddUserLocationToMap();
         }
 
         private DriveRoute _route;
@@ -413,6 +418,9 @@ namespace Racepad2 {
             }
         }
 
+        /// <summary>
+        /// Adds a bookmark to the map and the storage
+        /// </summary>
         private void AddBookmark(string name, Geopoint location) {
             Bookmark mark = new Bookmark() {
                 Name = name,
@@ -429,11 +437,57 @@ namespace Racepad2 {
             SettingsManager.GetDefaultSettingsManager().WriteList<Bookmark>("Bookmarks", new List<Bookmark>(Bookmarks));
         }
 
-
+        /// <summary>
+        /// Removes a bookmark from the map and the storage
+        /// </summary>
         private void RemoveBookmark(Bookmark bookmark) {
             Bookmarks.Remove(bookmark);
             Map.MapElements.Remove(bookmark.Icon);
             SettingsManager.GetDefaultSettingsManager().WriteList<Bookmark>("Bookmarks", new List<Bookmark>(Bookmarks));
+        }
+
+        protected override void OnNavigatingFrom(NavigatingCancelEventArgs e) {
+            BackupCamera();
+        }
+
+        /// <summary>
+        /// Backs up the current camera to storage
+        /// </summary>
+        private void BackupCamera() {
+            XmlSerializer serializer = new XmlSerializer(typeof(Camera));
+            StringWriter writer = new StringWriter();
+            serializer.Serialize(writer, Map.Camera);
+            SettingsManager manager = SettingsManager.GetDefaultSettingsManager();
+            manager.PutSetting("Camera", writer.ToString());
+        }
+
+        /// <summary>
+        /// Restores the camera from storage
+        /// </summary>
+        private void RestoreCamera() {
+            string data = SettingsManager.GetDefaultSettingsManager().GetSetting("Camera", "null");
+            if (data == "null") return;
+            XmlSerializer serializer = new XmlSerializer(typeof(Camera));
+            StringReader reader = new StringReader(data);
+            Map.Camera = (Camera)serializer.Deserialize(reader);
+        }
+
+        /// <summary>
+        /// Places an icon on the map where the user currently is
+        /// </summary>
+        private async void AddUserLocationToMap() {
+            GeolocationAccessStatus status = await Geolocator.RequestAccessAsync();
+            if (status != GeolocationAccessStatus.Allowed) return;
+            Geolocator locator = new Geolocator() {
+                DesiredAccuracyInMeters = 1
+            };
+
+            Geoposition position = await locator.GetGeopositionAsync();
+            MapIcon loc = new MapIcon() {
+                Image = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/Icons/P.png")),
+                Location = position.Coordinate.Point
+            };
+            Map.MapElements.Add(loc);
         }
 
     }
