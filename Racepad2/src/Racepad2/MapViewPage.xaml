@@ -53,91 +53,80 @@
                     Name="Pane" 
                     IsPaneOpen="False"
                     DisplayMode="Inline"
-                    OpenPaneLength="300"
+                    OpenPaneLength="330"
                     HorizontalAlignment="Left"
                     PaneBackground="#AA333333">
             <SplitView.Pane>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
-                    <Rectangle Height="1"
+                <Pivot>
+                    <PivotItem Header="Routing">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Rectangle Height="1"
                                Fill="Gray"
-                               Grid.Row="2"
+                               Grid.Row="1"
                                Margin="5,0,5,0"/>
-                    <TextBlock Text="Route vias" 
-                               Margin="10,10,10,10" 
-                               FontSize="18" 
-                               FontWeight="Bold"/>
-                    <ScrollViewer Grid.Row="1"
+                            <ScrollViewer Grid.Row="0"
                                   IsVerticalRailEnabled="False"
                                   VerticalScrollBarVisibility="Hidden">
-                        <ItemsControl x:Name="WaypointList" 
+                                <ItemsControl x:Name="WaypointList" 
                                   ItemsSource="{x:Bind Waypoints, Mode=OneWay}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <controls:MenuViaItem ItemRemoveRequested="MenuViaItem_ItemRemoveRequested" Waypoint="{Binding}" ViaType="{Binding Type}" Text="{Binding Description}"/>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </ScrollViewer>
-                    <Grid Margin="10" Grid.Row="3">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <Button Height="40"
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <controls:MenuViaItem ItemRemoveRequested="MenuViaItem_ItemRemoveRequested" Waypoint="{Binding}" ViaType="{Binding Type}" Text="{Binding Description}"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                            <Grid Margin="10" Grid.Row="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Button Height="40"
                                 Width="40"
                                 Grid.Column="0"
-                                HorizontalAlignment="Center"
-                                FontFamily="Segoe MDL2 Assets"
-                                Content="&#xE710;"
-                                FontSize="20"/>
-                        <Button Height="40"
-                                Width="40"
-                                Grid.Column="1"
                                 HorizontalAlignment="Center"
                                 FontFamily="Segoe MDL2 Assets"
                                 Content="&#xE74D;"
                                 FontSize="20"
                                 Name="DeleteAllButton"
                                 Click="DeleteAllButton_Click"/>
-                        <Button Height="40"
+                                <Button Height="40"
                                 Width="40"
-                                Grid.Column="2"
+                                Grid.Column="1"
                                 HorizontalAlignment="Center"
                                 FontFamily="Segoe MDL2 Assets"
                                 Content="&#xE895;"
                                 FontSize="20"
                                 Name="ReverseWaypoints"
                                 Click="ReverseWaypoints_Click"/>
-                        <Button Height="40"
+                                <Button Height="40"
                                 Width="40"
-                                Grid.Column="3"
+                                Grid.Column="2"
                                 HorizontalAlignment="Center"
                                 FontFamily="Segoe MDL2 Assets"
                                 Content="&#xE740;"
                                 FontSize="20"
                                 Name="CenterMap"
                                 Click="CenterMap_Click"/>
-                        <Button Height="40"
+                                <Button Height="40"
                                 Width="40"
-                                Grid.Column="4"
+                                Grid.Column="3"
                                 HorizontalAlignment="Center"
                                 FontFamily="Segoe MDL2 Assets"
                                 Content="&#xE78C;"
                                 FontSize="20"/>
-                        <Button Height="40"
+                                <Button Height="40"
                                 Width="40"
-                                Grid.Column="5"
+                                Grid.Column="4"
                                 HorizontalAlignment="Center"
                                 FontFamily="Segoe MDL2 Assets"
                                 Content="&#xE768;"
@@ -145,15 +134,31 @@
                                 Background="Red"
                                 Name="GoButton"
                                 Click="GoButton_Click"/>
-                    </Grid>
-                    <StackPanel Grid.Row="4">
-                        <TextBlock Margin="10"
+                            </Grid>
+                            <StackPanel Grid.Row="3">
+                                <TextBlock Margin="10"
                            Name="LenText"/>
-                        <TextBlock Margin="10,0,10,10" 
+                                <TextBlock Margin="10,0,10,10" 
                            Grid.Row="1"
                            Name="DuraText"/>
-                    </StackPanel>
-                </Grid> 
+                            </StackPanel>
+                        </Grid>
+                    </PivotItem>
+                    <PivotItem Header="Bookmarks">
+                        <Grid>
+                            <ScrollViewer VerticalScrollBarVisibility="Disabled">
+                                <ItemsControl ItemsSource="{x:Bind Bookmarks, Mode=OneWay}"
+                                              HorizontalAlignment="Stretch">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <controls:MenuViaItem Waypoint="{Binding}" Text="{Binding Name}" ViaType="Bookmark" ItemRemoveRequested="MenuViaItem_ItemRemoveRequested"/>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </ScrollViewer>
+                        </Grid>
+                    </PivotItem>
+                </Pivot>
             </SplitView.Pane>
             <Grid Width="0"></Grid>
         </SplitView>

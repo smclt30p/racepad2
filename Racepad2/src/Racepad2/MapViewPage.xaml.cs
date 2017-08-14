@@ -39,6 +39,7 @@ using Racepad2.UI.Controls;
 using Racepad2.Core.Navigation.Route;
 using Racepad2.Core.Util;
 using System.Xml.Serialization;
+using System.Diagnostics;
 
 namespace Racepad2 {
 
@@ -56,7 +57,7 @@ namespace Racepad2 {
         /// <summary>
         /// The list that holds all the bookmarks on the map
         /// </summary>
-        private List<Bookmark> Bookmarks { get; set; }
+        public ObservableCollection<Bookmark> Bookmarks { get; set; }
 
         /// <summary>
         /// The saved route after calculation
@@ -88,13 +89,14 @@ namespace Racepad2 {
 
         public MapViewPage() {
             this.InitializeComponent();
-            LoadBookmarks();
             Waypoints = new ObservableCollection<Waypoint>();
             Waypoints.CollectionChanged += Waypoints_CollectionChanged;
             Map.ToPointSelected += Map_ToPointSelected;
             Map.FromPointSelected += Map_FromPointSelected;
             Map.PivotPointSelected += Map_PivotPointSelected;
+            Map.BookmarkAdded += Map_BookmarkAdded;
             InvalidateView();
+            LoadBookmarks();
         }
 
         private DriveRoute _route;
@@ -262,32 +264,37 @@ namespace Racepad2 {
 
         /// <summary>
         /// This event is triggered when the small "X" next to a via point on the 
-        /// left-hand side menu is pressed.
+        /// left-hand side menu is pressed for bookmarks AND vias
         /// </summary>
         private void MenuViaItem_ItemRemoveRequested(object sender, ItemRemovedArgs args) {
-            int index = Waypoints.IndexOf(args.Waypoint);
-            // The waypoint is the start waypoint and has been removed and a pivot exists
-            if (index == 0 && Waypoints.Count > 2) {
-                // remove the start waypoint
-                RemoveWaypoint(args.Waypoint);
-                // transform pivot to start
-                Waypoint newStart = Waypoints[0];
-                RemoveWaypoint(newStart);
-                newStart.Type = ViaType.Start;
-                AddWaypoint(0, newStart);
-            }
-            // The waypoint is the end waypoint and has been removed and a pivot exists
-            else if (index == Waypoints.Count - 1 && Waypoints.Count > 2) {
+            object remove = args.Waypoint;
+            if (remove is Waypoint) { 
+                int index = Waypoints.IndexOf((Waypoint)args.Waypoint);
+                // The waypoint is the start waypoint and has been removed and a pivot exists
+                if (index == 0 && Waypoints.Count > 2) {
+                    // remove the start waypoint
+                    RemoveWaypoint((Waypoint)args.Waypoint);
+                    // transform pivot to start
+                    Waypoint newStart = Waypoints[0];
+                    RemoveWaypoint(newStart);
+                    newStart.Type = ViaType.Start;
+                    AddWaypoint(0, newStart);
+                }
+                // The waypoint is the end waypoint and has been removed and a pivot exists
+                else if (index == Waypoints.Count - 1 && Waypoints.Count > 2) {
 
-                // remove the end waypoint
-                RemoveWaypoint(args.Waypoint);
-                // transform last pivot to end
-                Waypoint newEnd = Waypoints[Waypoints.Count - 1];
-                RemoveWaypoint(newEnd);
-                newEnd.Type = ViaType.End;
-                AddWaypoint(Waypoints.Count, newEnd);
-            } else {
-                RemoveWaypoint(args.Waypoint);
+                    // remove the end waypoint
+                    RemoveWaypoint((Waypoint)args.Waypoint);
+                    // transform last pivot to end
+                    Waypoint newEnd = Waypoints[Waypoints.Count - 1];
+                    RemoveWaypoint(newEnd);
+                    newEnd.Type = ViaType.End;
+                    AddWaypoint(Waypoints.Count, newEnd);
+                } else {
+                    RemoveWaypoint((Waypoint)args.Waypoint);
+                }
+            } else if (remove is Bookmark) {
+                RemoveBookmark((Bookmark)args.Waypoint);
             }
 
         }
@@ -379,18 +386,54 @@ namespace Racepad2 {
         /// </summary>
         public void LoadBookmarks() {
             SettingsManager manager = SettingsManager.GetDefaultSettingsManager();
-            Bookmarks = manager.ReadList<Bookmark>("Bookmarks");
-            if (Bookmarks == null) {
-                Bookmarks = new List<Bookmark>();
-                manager.WriteList<Bookmark>("Bookmarks", Bookmarks);
+            List<Bookmark> storage = manager.ReadList<Bookmark>("Bookmarks");
+            if (storage == null) {
+                Bookmarks = new ObservableCollection<Bookmark>();
+                manager.WriteList<Bookmark>("Bookmarks", new List<Bookmark>(Bookmarks));
                 return;
+            } else {
+                Bookmarks = new ObservableCollection<Bookmark>(storage);
             }
             foreach (Bookmark bookmark in Bookmarks) {
-                MapIcon icon = new MapIcon();
-                icon.Image = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/Icons/S.png"));
-                icon.Title = bookmark.Name;
+                MapIcon icon = new MapIcon() {
+                    Image = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/Icons/S.png")),
+                    Title = bookmark.Name,
+                    Location = new Geopoint(bookmark.Location)
+                };
+                bookmark.Icon = icon;
                 Map.MapElements.Add(icon);
             }
+        }
+
+        private async void Map_BookmarkAdded(object sender, UI.Maps.PointSelectedEventArgs args) {
+            TextInputDialog namedialog = new TextInputDialog("Enter a bookmark name");
+            await namedialog.ShowAsync();
+            if (namedialog.InnerText != null) {
+                AddBookmark(namedialog.InnerText, args.Location);
+            }
+        }
+
+        private void AddBookmark(string name, Geopoint location) {
+            Bookmark mark = new Bookmark() {
+                Name = name,
+                Location = location.Position,
+            };
+            MapIcon icon = new MapIcon() {
+                Image = RandomAccessStreamReference.CreateFromUri(new Uri("ms-appx:///Assets/Icons/S.png")),
+                Title = name,
+                Location = location
+            };
+            Map.MapElements.Add(icon);
+            mark.Icon = icon;
+            Bookmarks.Add(mark);
+            SettingsManager.GetDefaultSettingsManager().WriteList<Bookmark>("Bookmarks", new List<Bookmark>(Bookmarks));
+        }
+
+
+        private void RemoveBookmark(Bookmark bookmark) {
+            Bookmarks.Remove(bookmark);
+            Map.MapElements.Remove(bookmark.Icon);
+            SettingsManager.GetDefaultSettingsManager().WriteList<Bookmark>("Bookmarks", new List<Bookmark>(Bookmarks));
         }
 
     }
@@ -399,7 +442,7 @@ namespace Racepad2 {
     /// Represents a type of via point
     /// </summary>
     public enum ViaType {
-        Start, End, Pivot
+        Start, End, Pivot, Bookmark
     }
 
     /// <summary>
@@ -428,8 +471,8 @@ namespace Racepad2 {
         public MapIcon Icon { get; set; }
     }
 
-    class Bookmark {
-        public Geopoint Location { get; set; }
+    public class Bookmark {
+        public BasicGeoposition Location { get; set; }
         public string Name { get; set; }
         [XmlIgnore] public MapIcon Icon { get; set; }
     }

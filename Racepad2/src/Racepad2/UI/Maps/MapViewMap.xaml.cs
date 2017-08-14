@@ -112,6 +112,16 @@ namespace Racepad2.UI.Maps {
             PivotPointSelected(this, args);
         }
 
+        public delegate void BookmarkAddedDelegate(object sender, PointSelectedEventArgs args);
+        public event BookmarkAddedDelegate BookmarkAdded;
+        private void OnBookmarkAdded(Geopoint point) {
+            if (BookmarkAdded == null) return;
+            PointSelectedEventArgs args = new PointSelectedEventArgs() {
+                Location = point
+            };
+            BookmarkAdded(this, args);
+        }
+
         public MapViewMap() {
             this.InitializeComponent();
             Map.MapRightTapped += _innerMap_MapRightTapped;
@@ -136,15 +146,19 @@ namespace Racepad2.UI.Maps {
             MenuFlyoutItem from = new MenuFlyoutItem();
             MenuFlyoutItem to = new MenuFlyoutItem();
             MenuFlyoutItem pivot = new MenuFlyoutItem();
+            MenuFlyoutItem bookmark = new MenuFlyoutItem();
             from.Text = "Directions from";
             to.Text = "Directions to";
             pivot.Text = "Add pivot point";
+            bookmark.Text = "Add bookmark";
             pivot.Click += Pivot_Tapped;
             from.Click += From_Tapped;
             to.Click += To_Tapped;
+            bookmark.Click += Bookmark_Click;
             flyout.Items.Add(from);
             flyout.Items.Add(to);
             flyout.Items.Add(pivot);
+            flyout.Items.Add(bookmark);
             flyout.ShowAt(Map, position);
             void Pivot_Tapped(object sender, Windows.UI.Xaml.RoutedEventArgs e)
             {
@@ -157,6 +171,10 @@ namespace Racepad2.UI.Maps {
             void To_Tapped(object sender, Windows.UI.Xaml.RoutedEventArgs e)
             {
                 OnToPointSelected(location);
+            }
+            void Bookmark_Click(object sender, Windows.UI.Xaml.RoutedEventArgs e)
+            {
+                OnBookmarkAdded(location);
             }
         }
 

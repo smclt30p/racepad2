@@ -42,7 +42,7 @@ namespace Racepad2.UI.Controls {
         /// </summary>
         public delegate void ItemRemoved(object sender, ItemRemovedArgs args);
         public event ItemRemoved ItemRemoveRequested;
-        private void OnItemRemoveRequested(Waypoint point) {
+        private void OnItemRemoveRequested(object point) {
             if (ItemRemoveRequested == null) return;
             ItemRemovedArgs args = new ItemRemovedArgs() {
                 Waypoint = point
@@ -83,6 +83,9 @@ namespace Racepad2.UI.Controls {
                 case ViaType.Pivot:
                     item.StartImg.Source = new BitmapImage(new Uri("ms-appx:///Assets/Icons/V.png"));
                     break;
+                case ViaType.Bookmark:
+                    item.StartImg.Source = new BitmapImage(new Uri("ms-appx:///Assets/Icons/S.png"));
+                    break;
             }
         }
         public ViaType ViaType {
@@ -98,10 +101,10 @@ namespace Racepad2.UI.Controls {
         /// This is the model behind the control, used
         /// for event handling
         /// </summary>
-        public static readonly DependencyProperty WaypointProperty = DependencyProperty.Register("Waypoint", typeof(Waypoint), typeof(MenuViaItem), null);
-        public Waypoint Waypoint {
+        public static readonly DependencyProperty WaypointProperty = DependencyProperty.Register("Waypoint", typeof(object), typeof(MenuViaItem), null);
+        public object Waypoint {
             get {
-                return (Waypoint) GetValue(WaypointProperty);
+                return GetValue(WaypointProperty);
             } set {
                 SetValue(WaypointProperty, value);
             }
@@ -122,7 +125,7 @@ namespace Racepad2.UI.Controls {
     }
 
     public class ItemRemovedArgs : EventArgs {
-        public Waypoint Waypoint { get; set; }
+        public object Waypoint { get; set; }
     }
 
 }

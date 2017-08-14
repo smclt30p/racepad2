@@ -30,6 +30,7 @@ using System.Xml.Serialization;
 using System.Text;
 
 using Windows.Storage;
+using System.Collections.ObjectModel;
 
 namespace Racepad2.Core.Util {
 

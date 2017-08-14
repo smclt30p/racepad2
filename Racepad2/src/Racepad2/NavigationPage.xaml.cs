@@ -397,7 +397,7 @@ namespace Racepad2 {
                 Session.Name = dialog.InnerText;
             }
             SettingsManager manager = SettingsManager.GetDefaultSettingsManager();
-            List<Session> sessions = manager.ReadList<Session>("Sessions");
+            List<Session> sessions = (List<Session>) manager.ReadList<Session>("Sessions");
             if (sessions == null) {
                 sessions = new List<Session>();
             }
