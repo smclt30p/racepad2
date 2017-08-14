@@ -40,6 +40,8 @@ using Racepad2.Navigation.Maths;
 using Racepad2.UI;
 using Racepad2.Core;
 using Racepad2.Core.Util;
+using Racepad2.UI.Controls;
+using Racepad2.Core.Util.Conversions;
 
 namespace Racepad2 {
 
@@ -385,16 +387,19 @@ namespace Racepad2 {
         /// Occurs when the user confirms that he wants to leave the navigation
         /// saving the session
         /// </summary>
-        private void SaveAndExit() {
+        private async void SaveAndExit() {
             Session.Close();
-            Session.Name = "Test session";
+            TextInputDialog dialog = new TextInputDialog("Enter a session name");
+            await dialog.ShowAsync();
+            if (dialog.InnerText == null) {
+                Session.Name = TimeConversions.ISOTimestamp(Session.StartTime);
+            } else {
+                Session.Name = dialog.InnerText;
+            }
             SettingsManager manager = SettingsManager.GetDefaultSettingsManager();
             List<Session> sessions = manager.ReadList<Session>("Sessions");
             if (sessions == null) {
                 sessions = new List<Session>();
-                sessions.Add(Session);
-                manager.WriteList<Session>("Sessions", sessions);
-                return;
             }
             sessions.Add(Session);
             manager.WriteList<Session>("Sessions", sessions);
