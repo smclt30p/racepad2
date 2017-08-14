@@ -27,8 +27,9 @@ using System.Collections.Generic;
 using System.IO;
 using System;
 using System.Xml.Serialization;
+using System.Text;
+
 using Windows.Storage;
-using System.Threading.Tasks;
 
 namespace Racepad2.Core.Util {
 
@@ -73,6 +74,12 @@ namespace Racepad2.Core.Util {
         /// <param name="key">The key</param>
         /// <param name="value">The value</param>
         public void PutSetting(string key, string value) {
+            foreach (Setting setting in SettingsList) {
+                if (setting.Key == key) {
+                    setting.Value = value;
+                    return;
+                }
+            }
             SettingsList.Add(new Setting { Key = key, Value = value });
         }
 
@@ -98,43 +105,38 @@ namespace Racepad2.Core.Util {
         }
 
         /// <summary>
-        /// Writes all the settings to the underlying storage
+        /// Writes all the settings to the settings.xml file
         /// </summary>
-        public async void CommitToStorage() {
-            StorageFile settings = await GetSettingsFile();
-            Stream stream = await settings.OpenStreamForWriteAsync();
+        public void CommitToStorage() {
+            StringWriter writer = new StringWriter();
             XmlSerializer serializer = new XmlSerializer(typeof(List<Setting>));
-            serializer.Serialize(stream, SettingsList);
+            serializer.Serialize(writer, SettingsList);
+            File.WriteAllText(ApplicationData.Current.LocalFolder.Path + "/settings.xml", writer.ToString(), Encoding.Unicode);
         }
 
         /// <summary>
-        /// Reads the settings.xml into memory
+        /// Reads the settings.xml into memory.
+        /// If the settings.xml file does not exist a new, blank one
+        /// is created and populated with an empty XML structure.
         /// </summary>
-        public async void ReadFromStorage() {
-            StorageFile settings = await GetSettingsFile();
-            Stream stream = await settings.OpenStreamForReadAsync();
+        public void ReadFromStorage() {
             XmlSerializer serializer = new XmlSerializer(typeof(List<Setting>));
-            SettingsList = (List<Setting>) serializer.Deserialize(stream);
-        }
-
-        /// <summary>
-        /// Gets the settings.xml file in %appdata% 
-        /// </summary>
-        private async Task<StorageFile> GetSettingsFile() {
-            StorageFolder appdata = ApplicationData.Current.LocalFolder;
-            StorageFile settings;
-            if (await appdata.TryGetItemAsync("settings.xml") == null) {
-                settings = await appdata.CreateFileAsync("settings.xml", CreationCollisionOption.ReplaceExisting);
-                Stream stream = await settings.OpenStreamForWriteAsync();
-                XmlSerializer serializer = new XmlSerializer(typeof(List<Setting>));
-                serializer.Serialize(stream, SettingsList);
-            } else {
-                settings = await appdata.GetFileAsync("settings.xml");
+            try {
+                string data = File.ReadAllText(ApplicationData.Current.LocalFolder.Path + "/settings.xml", Encoding.Unicode);
+                StringReader reader = new StringReader(data);
+                SettingsList = (List<Setting>)serializer.Deserialize(reader);
+            } catch (Exception) {
+                StringWriter writer = new StringWriter();
+                serializer.Serialize(writer, SettingsList);
+                File.WriteAllText(ApplicationData.Current.LocalFolder.Path + "/settings.xml", writer.ToString(), Encoding.Unicode);
+                SettingsList = new List<Setting>();
             }
-            return settings;
         }
     }
 
+    /// <summary>
+    /// Represents a simple key-value pair
+    /// </summary>
     public class Setting {
         public string Key { get; set; }
         public string Value { get; set; }
