@@ -44,6 +44,7 @@ namespace Racepad2.UI.Controls {
         }
 
         private void Cancel_Click(object sender, RoutedEventArgs e) {
+            InnerText = null;
             base.Hide();
         }
 
