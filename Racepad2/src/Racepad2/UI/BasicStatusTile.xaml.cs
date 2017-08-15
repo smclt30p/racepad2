@@ -23,6 +23,7 @@
 * limitations under the License.
 */
 
+using System;
 using Windows.UI.Xaml.Controls;
 
 namespace Racepad2.UI.StatusTiles {
@@ -66,6 +67,7 @@ namespace Racepad2.UI.StatusTiles {
 
         public BasicStatusTile() {
             this.InitializeComponent();
+            this.SizeChanged += Grid_SizeChanged;
         }
 
         /// <summary>
@@ -74,13 +76,17 @@ namespace Racepad2.UI.StatusTiles {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void Grid_SizeChanged(object sender, Windows.UI.Xaml.SizeChangedEventArgs e) {
-            double third = Host.ActualHeight / 6;
-            double width = Host.ActualWidth;
-            DisplayDescription.FontSize = third;
-            if (DisplayValue.ActualWidth > width) {
-                DisplayValue.FontSize = third * 2;
-            } else {
-                DisplayValue.FontSize = third * 3;
+            ResizeFont();
+        }
+
+        /// <summary>
+        /// If the contro's font size is too big it gets reduced by 5 points
+        /// </summary>
+        private void ResizeFont() {
+            double displaywidth = DisplayValue.ActualWidth;
+            double containerwidth = base.ActualWidth;
+            if (displaywidth + 20 > containerwidth) {
+                DisplayValue.FontSize -= 5;
             }
         }
     }
