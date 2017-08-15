@@ -64,6 +64,7 @@
                                 <RowDefinition/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
                             <Rectangle Height="1"
@@ -135,7 +136,29 @@
                                 Name="GoButton"
                                 Click="GoButton_Click"/>
                             </Grid>
-                            <StackPanel Grid.Row="3">
+                            <Grid Grid.Row="3">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Image Source="ms-appx:///Assets/Icons/RoadBike.png"
+                                       Height="30"
+                                       Width="100"
+                                       Grid.Column="0"/>
+                                <ToggleSwitch MaxWidth="50"
+                                              OffContent=""
+                                              OnContent=""
+                                              IsOn="True"
+                                              Grid.Column="1"
+                                              VerticalAlignment="Center"
+                                              Margin="30,0,0,0"/>
+                                <Image Source="ms-appx:///Assets/Icons/MountainBike.png"
+                                       Height="30"
+                                       Width="100"
+                                       Grid.Column="2"/>
+                            </Grid>
+                            <StackPanel Grid.Row="4">
                                 <TextBlock Margin="10"
                            Name="LenText"/>
                                 <TextBlock Margin="10,0,10,10" 
