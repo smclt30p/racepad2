@@ -63,6 +63,28 @@ namespace Racepad2 {
         public ObservableCollection<Bookmark> Bookmarks { get; set; }
 
         /// <summary>
+        /// This holds the bike type. The bike type dictates
+        /// if we stick to the road when routing or if
+        /// off road trails are a option.
+        /// </summary>
+        public BikeType BikeType {
+            get {
+                return _bikeType;
+            } set {
+                _bikeType = value;
+                Waypoints_CollectionChanged(null, null);
+                switch (value) {
+                    case BikeType.MTB:
+                        BikeSwitch.IsOn = true;
+                        break;
+                    case BikeType.Road:
+                        BikeSwitch.IsOn = false;
+                        break;
+                }
+            }
+        }
+
+        /// <summary>
         /// The saved route after calculation
         /// </summary>
         private Geopath Route {
@@ -98,13 +120,19 @@ namespace Racepad2 {
             Map.FromPointSelected += Map_FromPointSelected;
             Map.PivotPointSelected += Map_PivotPointSelected;
             Map.BookmarkAdded += Map_BookmarkAdded;
-            RestoreCamera();
+            LoadSettings();
             InvalidateView();
-            LoadBookmarks();
             AddUserLocationToMap();
         }
 
+        private void LoadSettings() {
+            LoadCamera();
+            LoadBookmarks();
+            LoadBikeType();
+        }
+
         private DriveRoute _route;
+        private BikeType _bikeType = BikeType.Road;
 
         /// <summary>
         /// This event is triggered each time the collection changes.
@@ -119,7 +147,15 @@ namespace Racepad2 {
                 }
                 Progress.Visibility = Visibility.Visible;
                 Title.Text = "Routing, please wait...";
-                MapRouteFinderResult result = await MapRouteFinder.GetDrivingRouteFromWaypointsAsync(path);
+                MapRouteFinderResult result = null;
+                switch (BikeType) {
+                    case BikeType.Road:
+                        result = await MapRouteFinder.GetDrivingRouteFromWaypointsAsync(path);
+                        break;
+                    case BikeType.MTB:
+                        result = await MapRouteFinder.GetWalkingRouteFromWaypointsAsync(path);
+                        break;
+                }
                 Progress.Visibility = Visibility.Collapsed;
                 switch (result.Status) {
                     case MapRouteFinderStatus.Success:
@@ -464,7 +500,7 @@ namespace Racepad2 {
         /// <summary>
         /// Restores the camera from storage
         /// </summary>
-        private void RestoreCamera() {
+        private void LoadCamera() {
             string data = SettingsManager.GetDefaultSettingsManager().GetSetting("Camera", "null");
             if (data == "null") return;
             XmlSerializer serializer = new XmlSerializer(typeof(Camera));
@@ -488,6 +524,40 @@ namespace Racepad2 {
                 Location = position.Coordinate.Point
             };
             Map.MapElements.Add(loc);
+        }
+
+        /// <summary>
+        /// This gets triggered if we toggle the bike type.
+        /// </summary>
+        private void BikeSwitch_Toggled(object sender, RoutedEventArgs e) {
+            if (sender is ToggleSwitch) {
+                ToggleSwitch sw = sender as ToggleSwitch;
+                if (sw.IsOn) {
+                    BikeType = BikeType.MTB;
+                } else {
+                    BikeType = BikeType.Road;
+                }
+                SettingsManager.GetDefaultSettingsManager().PutSetting("BikeType", BikeType.ToString());
+            }
+        }
+
+        private void LoadBikeType() {
+
+            string status = SettingsManager.GetDefaultSettingsManager().GetSetting("BikeType", "null");
+            if (status == "null") {
+                SettingsManager.GetDefaultSettingsManager().PutSetting("BikeType", "Road");
+                return;
+            }
+
+            switch (status) {
+                case "MTB":
+                    BikeType = BikeType.MTB;
+                    break;
+                case "Road":
+                    BikeType = BikeType.Road;
+                    break;
+            }
+
         }
 
     }
@@ -529,6 +599,10 @@ namespace Racepad2 {
         public BasicGeoposition Location { get; set; }
         public string Name { get; set; }
         [XmlIgnore] public MapIcon Icon { get; set; }
+    }
+
+    public enum BikeType {
+        Road, MTB
     }
 
 }

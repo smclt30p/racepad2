@@ -144,19 +144,22 @@
                                 </Grid.ColumnDefinitions>
                                 <Image Source="ms-appx:///Assets/Icons/RoadBike.png"
                                        Height="30"
-                                       Width="100"
-                                       Grid.Column="0"/>
+                                       Width="60"
+                                       Grid.Column="0"
+                                       Margin="30,0,0,0"/>
                                 <ToggleSwitch MaxWidth="50"
                                               OffContent=""
                                               OnContent=""
-                                              IsOn="True"
                                               Grid.Column="1"
                                               VerticalAlignment="Center"
-                                              Margin="30,0,0,0"/>
+                                              Margin="30,0,0,0"
+                                              Name="BikeSwitch"
+                                              Toggled="BikeSwitch_Toggled"/>
                                 <Image Source="ms-appx:///Assets/Icons/MountainBike.png"
                                        Height="30"
-                                       Width="100"
-                                       Grid.Column="2"/>
+                                       Width="60"
+                                       Grid.Column="2"
+                                       Margin="0,0,30,0"/>
                             </Grid>
                             <StackPanel Grid.Row="4">
                                 <TextBlock Margin="10"
