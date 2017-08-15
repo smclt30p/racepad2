@@ -188,4 +188,24 @@ namespace Racepad2.UI.StatusTiles {
             }
         }
     }
+
+    class TimeOfDayTile : BasicStatusTile {
+
+        private DispatcherTimer DispatcherTimer { get; set; }
+
+        public TimeOfDayTile() {
+            BottomText = "Time of day";
+            DispatcherTimer = new DispatcherTimer();
+            DispatcherTimer.Interval = new TimeSpan(0, 1, 0);
+            DispatcherTimer.Tick += DispatcherTimer_Tick;
+            DispatcherTimer.Start();
+            // tick the event once manually to update the UI once
+            DispatcherTimer_Tick(null, null);
+        }
+
+        private void DispatcherTimer_Tick(object sender, object e) {
+            DateTime time = DateTime.Now;
+            Value = time.ToString(@"HH\:mm");
+        }
+    }
 }

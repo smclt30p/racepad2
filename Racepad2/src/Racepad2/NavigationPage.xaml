@@ -90,7 +90,7 @@
                 </Border>
 
                 <Border Margin="5,0,0,0" Grid.Row="3" BorderBrush="White" BorderThickness="0,1,1,0">
-                    <!--<statustiles:TileContainer Tile="GradientTile" Value="{x:Bind Ride.Gradient, Mode=OneWay}"/>-->
+                    <statustiles:TileContainer Tile="TimeOfDayTile"/>
                 </Border>
 
                 <Border Margin="0,0,5,0" Grid.Row="2" Grid.Column="1" BorderBrush="White" BorderThickness="0,1,0,0">
