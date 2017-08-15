@@ -277,7 +277,7 @@ namespace Racepad2 {
         /// <param name="currentLocation"></param>
         /// <returns></returns>
         private bool IsVehicleOffCourse(BasicGeoposition currentLocation, List<BasicGeoposition> polyline) {
-            return !PolyUtil.isLocationOnPath(currentLocation, polyline , false, 20);
+            return !PolyUtil.isLocationOnPath(currentLocation, polyline , false, 50);
         }
         
         /// <summary>
