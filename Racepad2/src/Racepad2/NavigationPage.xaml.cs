@@ -42,6 +42,7 @@ using Racepad2.Core;
 using Racepad2.Core.Util;
 using Racepad2.UI.Controls;
 using Racepad2.Core.Util.Conversions;
+using System.Threading.Tasks;
 
 namespace Racepad2 {
 
@@ -50,6 +51,7 @@ namespace Racepad2 {
     /// </summary>
     public sealed partial class NavigationPage : Page {
 
+        private bool navigationDisabled = false;
         private DisplayRequest Display { get; set; }
         private Session Session { get; set; }
         private DriveRoute Route { get; set; }
@@ -62,6 +64,17 @@ namespace Racepad2 {
         public static CoreDispatcher MainDispatcher { get; set; }
         private DispatcherTimer Timer { get; set; }
         private Geolocator Locator { get; set; }
+        private bool NavigationDisabled {
+            get {
+                return navigationDisabled;
+            }
+            set {
+                if (value) {
+                    CourseStatus = CourseStatus.COURSE_FINISHED;
+                }
+                navigationDisabled = value;
+            }
+        }
 
         public NavigationPage() {
             InitializeComponent();
@@ -84,10 +97,11 @@ namespace Racepad2 {
             if (e.Parameter == null) {
                 CourseStatus = CourseStatus.COURSE_FINISHED;
             } else {
-                if (e.Parameter is DriveRoute) {
-                    DriveRoute route = e.Parameter as DriveRoute;
-                    Map.Route = route;
-                    Route = route;
+                if (e.Parameter is NavigationPageParameter) {
+                    NavigationPageParameter param = e.Parameter as NavigationPageParameter;
+                    Map.Route = param.Route;
+                    Route = param.Route;
+                    NavigationDisabled = param.DisableNavigation;
                 } else {
                     throw new Exception("Navigation parameter is not a route!");
                 }
@@ -151,6 +165,11 @@ namespace Racepad2 {
                  */
                 case CourseStatus.COURSE_FINISHED:
                     if (!IsVehicleMoving(args)) break;
+                    if (navigationDisabled) {
+                        if (IsVehicleOffCourse(currentLocation, Session.Path)) {
+                            CourseStatus = CourseStatus.COURSE_OFF_COURSE;
+                        }
+                    }
                     UpdateInstruction("");
                     break;
                 /* This occurs when the vehicle is off of
@@ -161,7 +180,11 @@ namespace Racepad2 {
                     PlayOffCourseSound();
                     if (!IsVehicleMoving(args)) break;
                     if (!IsVehicleOffCourse(currentLocation, Session.Path)) {
-                        CourseStatus = CourseStatus.COURSE_IN_PROGRESS;
+                        if (navigationDisabled) {
+                            CourseStatus = CourseStatus.COURSE_FINISHED;
+                        } else {
+                            CourseStatus = CourseStatus.COURSE_IN_PROGRESS;
+                        }
                         Sounds.ResetOffCoursePlayed();
                         break;
                     }
@@ -414,4 +437,29 @@ namespace Racepad2 {
             Frame.Navigate(typeof(MainPage));
         }
     }
+
+    public class NavigationPageParameter {
+        public DriveRoute Route { get; set; }
+        public bool DisableNavigation { get; set; }
+
+        public async Task<bool> PromptNavigation() {
+            MessageDialog dialog = new MessageDialog("This is not recommended for twisty off road trails.");
+            dialog.Title = "Turn on turn-by-turn navigation ?";
+            UICommand yes = new UICommand {
+                Label = "Yes",
+                Id = 1
+            };
+            UICommand no = new UICommand() {
+                Label = "No",
+                Id = 0
+            };
+            dialog.Commands.Add(yes);
+            dialog.Commands.Add(no);
+            IUICommand resp = await dialog.ShowAsync();
+            if ((int) resp.Id ==  1) return false;
+            return true;
+        }
+
+    }
+
 }

@@ -77,8 +77,12 @@ namespace Racepad2 {
         /// <summary>
         /// Occurs when the GO button is pressed.
         /// </summary>
-        private void Go_Click(object sender, RoutedEventArgs e) {
-            Frame.Navigate(typeof(NavigationPage), Route);
+        private async void Go_Click(object sender, RoutedEventArgs e) {
+            NavigationPageParameter param = new NavigationPageParameter {
+                Route = Route
+            };
+            param.DisableNavigation = await param.PromptNavigation();
+            Frame.Navigate(typeof(NavigationPage), param);
         }
     }
 }
