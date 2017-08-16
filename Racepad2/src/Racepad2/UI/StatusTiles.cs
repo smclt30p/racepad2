@@ -25,9 +25,10 @@
 
 using System;
 
-using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+
+using Racepad2.Core.Util.Conversions;
 
 
 namespace Racepad2.UI.StatusTiles {
@@ -87,7 +88,15 @@ namespace Racepad2.UI.StatusTiles {
     /// </summary>
     class AltitudeTile : BasicStatusTile {
         public AltitudeTile() {
-            BottomText = "Altitude (m)";
+            BottomText = String.Format("Altitude ({0})", UnitConvertor.GetUnitConvertor().GetVisualAltitudeUnit());
+        }
+        public override object Value {
+            get {
+                return base.Value;
+            } set {
+                double alt = UnitConvertor.GetUnitConvertor().ConvertAltitude(Double.Parse(value.ToString()));
+                base.Value = Convert.ToString(Math.Round(alt, 0));
+            }
         }
     }
 
@@ -104,7 +113,7 @@ namespace Racepad2.UI.StatusTiles {
                 return base.Value;
             }
             set {
-                double avgSpeed = Double.Parse(value.ToString()) * 3.6;
+                double avgSpeed = UnitConvertor.GetUnitConvertor().ConvertSpeed(Double.Parse(value.ToString()) * 3.6);
                 base.Value = Convert.ToString(Math.Round(avgSpeed, 2));
             }
         }
@@ -116,14 +125,14 @@ namespace Racepad2.UI.StatusTiles {
     /// </summary>
     class DistanceTile : BasicStatusTile {
         public DistanceTile() {
-            BottomText = "Distance (km)";
+            BottomText = String.Format("Distance ({0})", UnitConvertor.GetUnitConvertor().GetVisualDistanceUnit());
         }
         public override object Value {
             get {
                 return base.Value.ToString();
             }
             set {
-                double distanceMeters = Double.Parse(value.ToString());
+                double distanceMeters = UnitConvertor.GetUnitConvertor().ConvertDistance(Double.Parse(value.ToString()));
                 base.Value = Convert.ToString(Math.Round((distanceMeters / 1000), 2));
             }
         }
@@ -135,14 +144,14 @@ namespace Racepad2.UI.StatusTiles {
     /// </summary>
     class MaxSpeedTile : BasicStatusTile {
         public MaxSpeedTile() {
-            BottomText = "Max. Speed (km/h)";
+            BottomText = String.Format("Max. Speed ({0})", UnitConvertor.GetUnitConvertor().GetVisualSpeedUnit());
         }
         public override object Value {
             get {
                 return base.Value;
             }
             set {
-                double maxSpeed = Double.Parse(value.ToString()) * 3.6;
+                double maxSpeed = UnitConvertor.GetUnitConvertor().ConvertSpeed(Double.Parse(value.ToString()) * 3.6);
                 base.Value = Convert.ToString(Math.Round(maxSpeed, 2));
             }
         }
@@ -154,14 +163,14 @@ namespace Racepad2.UI.StatusTiles {
     /// </summary>
     class SpeedTile : BasicStatusTile {
         public SpeedTile() : base() {
-            base.BottomText = "Speed (km/h)";
+            base.BottomText = String.Format("Speed ({0})", UnitConvertor.GetUnitConvertor().GetVisualSpeedUnit());
         }
         public override object Value {
             get {
                 return base.Value.ToString();
             }
             set {
-                double speed = Double.Parse(value.ToString());
+                double speed = UnitConvertor.GetUnitConvertor().ConvertSpeed(Double.Parse(value.ToString()));
                 base.Value = Convert.ToString(Math.Round(speed * 3.6, 2));
             }
         }

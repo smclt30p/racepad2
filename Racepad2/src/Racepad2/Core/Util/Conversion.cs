@@ -58,4 +58,110 @@ namespace Racepad2.Core.Util.Conversions {
 
     }
 
+    /// <summary>
+    /// This class is used for imperial conversions
+    /// </summary>
+    public class UnitConvertor : IUnitConvertor {
+
+        public static UnitConvertor instance;
+
+        public Units Units { get; private set; }
+
+        public static UnitConvertor GetUnitConvertor() {
+            if (instance == null) {
+                instance = new UnitConvertor();
+            }
+            return instance;
+        }
+
+        public UnitConvertor() {
+            LoadSettings();
+        }
+
+        private void LoadSettings() {
+            SettingsManager manager = SettingsManager.GetDefaultSettingsManager();
+            string units = manager.GetSetting("Units", "Metric");
+            switch (units) {
+                case "Metric":
+                    this.Units = Units.Metric;
+                    break;
+                case "Imperial":
+                    this.Units = Units.Imperial;
+                    break;
+            }
+        }
+
+        public string GetVisualSpeedUnit() {
+            switch (Units) {
+                case Units.Imperial:
+                    return "MPH";
+                case Units.Metric:
+                    return "km/h";
+                default:
+                    return "km/h";
+            }
+        }
+
+        public string GetVisualDistanceUnit() {
+            switch (Units) {
+                case Units.Imperial:
+                    return "mi";
+                case Units.Metric:
+                    return "km";
+                default:
+                    return "km";
+            }
+        }
+
+        public double ConvertDistance(double metric) {
+            return ConvertSpeed(metric);
+        }
+
+        public double ConvertSpeed(double metric) {
+            if (Units == Units.Metric) return metric;
+            return metric * 0.62137119223733d;
+        }
+
+        public double ConvertAltitude(double metric) {
+            if (Units == Units.Metric) return metric;
+            return metric * 3.280839895d;
+        }
+
+        public string GetVisualAltitudeUnit() {
+            switch (Units) {
+                case Units.Imperial:
+                    return "ft";
+                case Units.Metric:
+                    return "m";
+                default:
+                    return "m";
+            }
+        }
+    }
+
+    public enum Units {
+        Imperial, Metric
+    }
+
+    interface IUnitConvertor {
+        /// <summary>
+        /// Gets the visual speed unit (MPH or km/h)
+        /// </summary>
+        string GetVisualSpeedUnit();
+        /// <summary>
+        /// Gets the visual distance unit (km or miles)
+        /// </summary>
+        string GetVisualDistanceUnit();
+        /// <summary>
+        /// Normalizes the metric distance
+        /// </summary>
+        double ConvertDistance(double metric);
+        /// <summary>
+        /// Normalizes the metric speed
+        /// </summary>
+        double ConvertSpeed(double metric);
+        double ConvertAltitude(double metric);
+        string GetVisualAltitudeUnit();
+    }
+
 }
