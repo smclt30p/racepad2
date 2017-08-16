@@ -103,13 +103,13 @@ namespace Racepad2.UI.StatusTiles {
     /// </summary>
     class AltitudeTile : BasicStatusTile {
         public AltitudeTile() {
-            BottomText = String.Format("Altitude ({0})", UnitConvertor.GetUnitConvertor().GetVisualAltitudeUnit());
+            BottomText = String.Format("Altitude ({0})", DisplayConvertor.GetUnitConvertor().GetVisualAltitudeUnit());
         }
         public override object Value {
             get {
                 return base.Value;
             } set {
-                double alt = UnitConvertor.GetUnitConvertor().ConvertAltitude(Double.Parse(value.ToString()));
+                double alt = DisplayConvertor.GetUnitConvertor().ConvertAltitude(Double.Parse(value.ToString()));
                 base.Value = Convert.ToString(Math.Round(alt, 0));
             }
         }
@@ -128,7 +128,7 @@ namespace Racepad2.UI.StatusTiles {
                 return base.Value;
             }
             set {
-                double avgSpeed = UnitConvertor.GetUnitConvertor().ConvertSpeed(Double.Parse(value.ToString()) * 3.6);
+                double avgSpeed = DisplayConvertor.GetUnitConvertor().ConvertSpeed(Double.Parse(value.ToString()) * 3.6);
                 base.Value = Convert.ToString(Math.Round(avgSpeed, 2));
             }
         }
@@ -140,14 +140,14 @@ namespace Racepad2.UI.StatusTiles {
     /// </summary>
     class DistanceTile : BasicStatusTile {
         public DistanceTile() {
-            BottomText = String.Format("Distance ({0})", UnitConvertor.GetUnitConvertor().GetVisualDistanceUnit());
+            BottomText = String.Format("Distance ({0})", DisplayConvertor.GetUnitConvertor().GetVisualDistanceUnit());
         }
         public override object Value {
             get {
                 return base.Value.ToString();
             }
             set {
-                double distanceMeters = UnitConvertor.GetUnitConvertor().ConvertDistance(Double.Parse(value.ToString()));
+                double distanceMeters = DisplayConvertor.GetUnitConvertor().ConvertDistance(Double.Parse(value.ToString()));
                 base.Value = Convert.ToString(Math.Round((distanceMeters / 1000), 2));
             }
         }
@@ -159,14 +159,14 @@ namespace Racepad2.UI.StatusTiles {
     /// </summary>
     class MaxSpeedTile : BasicStatusTile {
         public MaxSpeedTile() {
-            BottomText = String.Format("Max. Speed ({0})", UnitConvertor.GetUnitConvertor().GetVisualSpeedUnit());
+            BottomText = String.Format("Max. Speed ({0})", DisplayConvertor.GetUnitConvertor().GetVisualSpeedUnit());
         }
         public override object Value {
             get {
                 return base.Value;
             }
             set {
-                double maxSpeed = UnitConvertor.GetUnitConvertor().ConvertSpeed(Double.Parse(value.ToString()) * 3.6);
+                double maxSpeed = DisplayConvertor.GetUnitConvertor().ConvertSpeed(Double.Parse(value.ToString()) * 3.6);
                 base.Value = Convert.ToString(Math.Round(maxSpeed, 2));
             }
         }
@@ -178,14 +178,14 @@ namespace Racepad2.UI.StatusTiles {
     /// </summary>
     class SpeedTile : BasicStatusTile {
         public SpeedTile() : base() {
-            base.BottomText = String.Format("Speed ({0})", UnitConvertor.GetUnitConvertor().GetVisualSpeedUnit());
+            base.BottomText = String.Format("Speed ({0})", DisplayConvertor.GetUnitConvertor().GetVisualSpeedUnit());
         }
         public override object Value {
             get {
                 return base.Value.ToString();
             }
             set {
-                double speed = UnitConvertor.GetUnitConvertor().ConvertSpeed(Double.Parse(value.ToString()));
+                double speed = DisplayConvertor.GetUnitConvertor().ConvertSpeed(Double.Parse(value.ToString()));
                 base.Value = Convert.ToString(Math.Round(speed * 3.6, 2));
             }
         }
@@ -229,7 +229,7 @@ namespace Racepad2.UI.StatusTiles {
 
         private void DispatcherTimer_Tick(object sender, object e) {
             DateTime time = DateTime.Now;
-            Value = time.ToString(@"HH\:mm");
+            Value = time.ToString(DisplayConvertor.GetUnitConvertor().GetTimeFormat());
         }
     }
 

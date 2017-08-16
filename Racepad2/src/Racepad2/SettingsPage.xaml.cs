@@ -23,10 +23,10 @@
 * limitations under the License.
 */
 
-using System;
+using Windows.UI.Xaml.Controls;
+
 using Racepad2.Core.Util;
 using Racepad2.Core.Util.Conversions;
-using Windows.UI.Xaml.Controls;
 
 namespace Racepad2 {
 
@@ -40,6 +40,7 @@ namespace Racepad2 {
         private void LoadSettings() {
             // Units switch
             UnitToggleSwitch.IsOn = SettingsManager.GetDefaultSettingsManager().GetSetting("Units", "Metric") == "Imperial";
+            TimeFormatToggle.IsOn = SettingsManager.GetDefaultSettingsManager().GetSetting("TimeFormat", "H24") == "H12";
         }
 
         /// <summary>
@@ -55,6 +56,20 @@ namespace Racepad2 {
                 // metric
                 case false:
                     SettingsManager.GetDefaultSettingsManager().PutSetting("Units", Units.Metric.ToString());
+                    break;
+            }
+        }
+
+        private void TimeFormatToggle_Toggled(object sender, Windows.UI.Xaml.RoutedEventArgs e) {
+            ToggleSwitch switchh = sender as ToggleSwitch;
+            switch (switchh.IsOn) {
+                // 12h
+                case true:
+                    SettingsManager.GetDefaultSettingsManager().PutSetting("TimeFormat", TimeFormat.H12.ToString());
+                    break;
+                // 24h
+                case false:
+                    SettingsManager.GetDefaultSettingsManager().PutSetting("TimeFormat", TimeFormat.H24.ToString());
                     break;
             }
         }

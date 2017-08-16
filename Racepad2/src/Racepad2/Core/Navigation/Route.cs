@@ -289,7 +289,7 @@ namespace Racepad2.Core.Navigation.Route {
         [XmlIgnore] private int _time = 0;
 
         public Session() {
-            StartTime = TimeConversions.CurrentTimeSeconds();
+            StartTime = DisplayConvertor.GetUnitConvertor().CurrentTimeSeconds();
         }
 
         /// <summary>
@@ -411,8 +411,8 @@ namespace Racepad2.Core.Navigation.Route {
         /// Closes the session
         /// </summary>
         public void Close() {
-            EndTime = TimeConversions.CurrentTimeSeconds();
-            TimeStamp = TimeConversions.ISOTimestamp(StartTime);
+            EndTime = DisplayConvertor.GetUnitConvertor().CurrentTimeSeconds();
+            TimeStamp = DisplayConvertor.GetUnitConvertor().ISOTimestamp(StartTime);
         }
 
         /// <summary>

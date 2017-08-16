@@ -392,7 +392,7 @@ namespace Racepad2 {
             TextInputDialog dialog = new TextInputDialog("Enter a session name");
             await dialog.ShowAsync();
             if (dialog.InnerText == null) {
-                Session.Name = TimeConversions.ISOTimestamp(Session.StartTime);
+                Session.Name = DisplayConvertor.GetUnitConvertor().ISOTimestamp(Session.StartTime);
             } else {
                 Session.Name = dialog.InnerText;
             }

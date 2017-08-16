@@ -7,23 +7,38 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <StackPanel Background="#333333">
+    <Grid Background="#333333">
 
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
         <StackPanel Height="45"
                     Background="#4d4d4d">
             <TextBlock Margin="13"
                        Text="Settings"/>
         </StackPanel>
 
-        <StackPanel Margin="10">
-            <TextBlock FontSize="18"
+        <Pivot Grid.Row="1">
+            <PivotItem Header="General">
+                <StackPanel>
+                    <TextBlock FontSize="18"
                        FontWeight="SemiBold">Units</TextBlock>
-            <ToggleSwitch OnContent="Imperial"
+                    <ToggleSwitch OnContent="Imperial"
                           OffContent="Metric"
                           Name="UnitToggleSwitch"
                           Toggled="UnitToggleSwitch_Toggled"></ToggleSwitch>
-        </StackPanel>
+                    <TextBlock FontSize="18"
+                       FontWeight="SemiBold">Time format</TextBlock>
+                    <ToggleSwitch OnContent="12h"
+                          OffContent="24h"
+                          Name="TimeFormatToggle"
+                          Toggled="TimeFormatToggle_Toggled"></ToggleSwitch>
+                </StackPanel>
+            </PivotItem>
+        </Pivot>
         
-    </StackPanel>
+    </Grid>
 
 </Page>
