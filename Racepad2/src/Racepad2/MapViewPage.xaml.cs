@@ -97,8 +97,8 @@ namespace Racepad2 {
                 _route.Corners = DriveRoute.ParseCorners(_route.Path);
                 _route.Status = CourseStatus.COURSE_NOT_STARTED;
                 double lengthKilometers = Math.Round(DriveRoute.GetLength(_route) / 1000, 2);
-                LenText.Text = String.Format("Distance: {0}{1}", DisplayConvertor.GetUnitConvertor().GetVisualDistanceUnit(),
-                                                                 DisplayConvertor.GetUnitConvertor().ConvertDistance(lengthKilometers));
+                LenText.Text = String.Format("Distance: {0} {1}", DisplayConvertor.GetUnitConvertor().ConvertDistance(lengthKilometers),
+                                                                 DisplayConvertor.GetUnitConvertor().GetVisualDistanceUnit());
                 DuraText.Text = CalculateNeededTime(lengthKilometers);
             }
         }
