@@ -92,6 +92,7 @@ namespace Racepad2.Core.Util.Conversions {
         }
 
         public string GetVisualSpeedUnit() {
+            LoadSettings();
             switch (Units) {
                 case Units.Imperial:
                     return "MPH";
@@ -103,6 +104,7 @@ namespace Racepad2.Core.Util.Conversions {
         }
 
         public string GetVisualDistanceUnit() {
+            LoadSettings();
             switch (Units) {
                 case Units.Imperial:
                     return "mi";
@@ -118,16 +120,19 @@ namespace Racepad2.Core.Util.Conversions {
         }
 
         public double ConvertSpeed(double metric) {
+            LoadSettings();
             if (Units == Units.Metric) return metric;
             return metric * 0.62137119223733d;
         }
 
         public double ConvertAltitude(double metric) {
+            LoadSettings();
             if (Units == Units.Metric) return metric;
             return metric * 3.280839895d;
         }
 
         public string GetVisualAltitudeUnit() {
+            LoadSettings();
             switch (Units) {
                 case Units.Imperial:
                     return "ft";

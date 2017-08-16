@@ -83,5 +83,12 @@ namespace Racepad2 {
         private void ViewMap_Click(object sender, RoutedEventArgs e) {
             Frame.Navigate(typeof(MapViewPage));
         }
+
+        /// <summary>
+        /// The SETTINGS button is pressed
+        /// </summary>
+        private void SettingsButton_Click(object sender, RoutedEventArgs e) {
+            Frame.Navigate(typeof(SettingsPage));
+        }
     }
 }
