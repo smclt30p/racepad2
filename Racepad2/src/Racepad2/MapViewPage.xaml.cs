@@ -43,6 +43,7 @@ using System.Diagnostics;
 using Windows.UI.Xaml.Navigation;
 using Racepad2.UI.Maps;
 using System.IO;
+using Racepad2.Core.Util.Conversions;
 
 namespace Racepad2 {
 
@@ -96,7 +97,8 @@ namespace Racepad2 {
                 _route.Corners = DriveRoute.ParseCorners(_route.Path);
                 _route.Status = CourseStatus.COURSE_NOT_STARTED;
                 double lengthKilometers = Math.Round(DriveRoute.GetLength(_route) / 1000, 2);
-                LenText.Text = String.Format("Distance: {0}km", lengthKilometers);
+                LenText.Text = String.Format("Distance: {0}{1}", DisplayConvertor.GetUnitConvertor().GetVisualDistanceUnit(),
+                                                                 DisplayConvertor.GetUnitConvertor().ConvertDistance(lengthKilometers));
                 DuraText.Text = CalculateNeededTime(lengthKilometers);
             }
         }
