@@ -53,6 +53,17 @@ namespace Racepad2.UI.StatusTiles {
         }
 
         /// <summary>
+        /// Override the default font size
+        /// </summary>
+        public double FontSizeOverride {
+            get {
+                return DisplayValue.FontSize;
+            } set {
+                DisplayValue.FontSize = value;
+            }
+        }
+
+        /// <summary>
         /// This property holds the status tile's
         /// small description.
         /// </summary>

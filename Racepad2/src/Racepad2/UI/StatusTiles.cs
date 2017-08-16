@@ -42,6 +42,21 @@ namespace Racepad2.UI.StatusTiles {
 
         private BasicStatusTile _innerTile;
 
+        public TileType TileType {
+            private get {
+                return TileType.Normal;
+            } set {
+                switch (value) {
+                    case TileType.Normal:
+                        _innerTile.FontSizeOverride = 48;
+                        break;
+                    case TileType.Large:
+                        _innerTile.FontSizeOverride = 100;
+                        break;
+                }
+            }
+        }
+
         /// <summary>
         /// This is the class name of the tile that is loaded
         /// via reflection into the UI
@@ -216,5 +231,9 @@ namespace Racepad2.UI.StatusTiles {
             DateTime time = DateTime.Now;
             Value = time.ToString(@"HH\:mm");
         }
+    }
+
+    public enum TileType {
+        Normal, Large
     }
 }

@@ -74,7 +74,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Margin="5,5,0,0" Grid.Row="0" Grid.ColumnSpan="2" BorderBrush="White" BorderThickness="0,0,0,0">
-                    <statustiles:TileContainer Tile="SpeedTile" Value="{x:Bind Session.Speed, Mode=OneWay}"/>
+                    <statustiles:TileContainer Tile="SpeedTile" Value="{x:Bind Session.Speed, Mode=OneWay}" TileType="Large"/>
                 </Border>
 
                 <Border Margin="5,0,0,0" Grid.Row="1" BorderBrush="White" BorderThickness="0,1,1,0">
