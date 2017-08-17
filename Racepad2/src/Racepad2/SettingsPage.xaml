@@ -37,6 +37,55 @@
                           Toggled="TimeFormatToggle_Toggled"></ToggleSwitch>
                 </StackPanel>
             </PivotItem>
+            <PivotItem Header="About">
+                <StackPanel>
+                    <Image Source="ms-appx:///Assets/SplashScreen.scale-200.png"
+                           Height="120"
+                           Margin="0,-20,0,0"/>
+                    <TextBlock Text="Copyright © 2017 Sumpremacy Sofware"
+                               TextAlignment="Center"
+                               Margin="0,-20,0,0"/>
+                    <TextBlock Text="ALPHA VERSION - build 366"
+                               TextAlignment="Center"
+                               Foreground="Gray"
+                               FontSize="12"/>
+                    <TextBlock Text="This application is open source sofware."
+                               TextAlignment="Center"
+                               Foreground="DarkGreen"
+                               FontSize="12"/>
+                    <Rectangle Height="1"
+                               Fill="Gray"
+                               Margin="10"></Rectangle>
+                    <StackPanel Margin="10,0,0,10">
+                        <TextBlock Text="This application uses navigational sofware from the Google Maps SDK licensed under the Apache License, Version 2.
+                                   Copyright © 2008, 2012 Google Inc."
+                               TextAlignment="Left"
+                               Foreground="DarkGray"
+                               FontSize="12"
+                               TextWrapping="Wrap"/>
+                        <HyperlinkButton FontSize="12"
+                                         NavigateUri="https://github.com/googlemaps/android-maps-utils/blob/master/library/src/com/google/maps/android/PolyUtil.java">More info</HyperlinkButton>
+                        <TextBlock Text="This application uses icons from Icons8.com
+                                   Copyright 2012 © Icons8.com. I love you guys. "
+                               TextAlignment="Left"
+                               Foreground="DarkGray"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                                   Margin="0,20,0,0"/>
+                        <HyperlinkButton FontSize="12"
+                                         NavigateUri="https://icons8.com/">More info</HyperlinkButton>
+                        <TextBlock Text="This application uses the Demonized font for its logos.
+                                   Copyright 2005 © GreyWolf Webworks."
+                               TextAlignment="Left"
+                               Foreground="DarkGray"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                                   Margin="0,20,0,0"/>
+                        <HyperlinkButton FontSize="12"
+                                         NavigateUri="http://www.dafont.com/demonized.font">More info</HyperlinkButton>
+                    </StackPanel>
+                </StackPanel>
+            </PivotItem>
         </Pivot>
         
     </Grid>

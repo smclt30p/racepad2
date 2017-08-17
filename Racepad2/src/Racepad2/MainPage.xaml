@@ -79,15 +79,6 @@
 
         </StackPanel>
 
-        <TextBlock RelativePanel.AlignBottomWithPanel="True" 
-                   TextAlignment="Center" 
-                   RelativePanel.AlignLeftWithPanel="True" 
-                   RelativePanel.AlignRightWithPanel="True"
-                   FontSize="12"
-                   Foreground="Gray"
-                   Margin="5">Racepad2 ALPHA - build 385 - Supremacy Software</TextBlock>
-
-
     </RelativePanel>
    
 </Page>
