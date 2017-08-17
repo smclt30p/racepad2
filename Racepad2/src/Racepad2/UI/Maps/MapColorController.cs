@@ -30,11 +30,16 @@ using Windows.UI.Xaml.Controls.Maps;
 
 namespace Racepad2.UI.Maps {
 
+    /// <summary>
+    /// class used for color scheme switchting inside the navigation map view
+    /// </summary>
     class MapColorController {
 
+        /// <summary>
+        /// Controller is singleton
+        /// </summary>
         private static MapColorController instance;
         public DispatcherTimer ColorChangeTimer { get; }
-
         public static MapColorController GetMapColorController() {
             if (instance == null) {
                 instance = new MapColorController();
@@ -42,6 +47,10 @@ namespace Racepad2.UI.Maps {
             return instance;
         }
 
+        /// <summary>
+        /// The event that gets fired each 15 minutes to check the time
+        /// and set the map color scheme
+        /// </summary>
         public delegate void MapSchemeChanged(MapColorScheme scheme);
         public event MapSchemeChanged MapSchemeChanging;
         public void MapSchemeChange(MapColorScheme scheme) {
@@ -51,11 +60,14 @@ namespace Racepad2.UI.Maps {
 
         private MapColorController() {
             ColorChangeTimer = new DispatcherTimer();
-            ColorChangeTimer.Interval = new TimeSpan(0, 1, 0);
+            ColorChangeTimer.Interval = new TimeSpan(0, 15, 0);
             ColorChangeTimer.Tick += ColorChangeTimer_Tick;
             ColorChangeTimer.Start();
         }
 
+        /// <summary>
+        /// Timer tick, check time and emit event if needed
+        /// </summary>
         private void ColorChangeTimer_Tick(object sender, object e) {
             if (IsNight()) {
                 MapSchemeChanging(MapColorScheme.Dark);
@@ -65,11 +77,17 @@ namespace Racepad2.UI.Maps {
                
         }
 
+        /// <summary>
+        /// Method used to set the initial map color scheme
+        /// </summary>
         internal MapColorScheme PulseOnce() {
             if (IsNight()) return MapColorScheme.Dark;
             return MapColorScheme.Light;
         }
 
+        /// <summary>
+        /// Returns true if the current time is between 20:00 and 6:00
+        /// </summary>
         private bool IsNight() {
             DateTime time = DateTime.Now;
             int hour = Int32.Parse(time.ToString("HH"));
