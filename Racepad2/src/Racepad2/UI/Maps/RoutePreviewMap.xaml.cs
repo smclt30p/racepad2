@@ -76,7 +76,7 @@ namespace Racepad2.UI.Maps {
                 polyline = new MapPolyline() {
                     StrokeThickness = 5,
                     Path = path,
-                    StrokeColor = DriveRoute.GetColorFromSlope(pair.SlopePercentage)
+                    StrokeColor = DriveRoute.GetColorFromSlope(Map, pair.SlopePercentage)
                 };
                 Map.MapElements.Add(polyline);
             }

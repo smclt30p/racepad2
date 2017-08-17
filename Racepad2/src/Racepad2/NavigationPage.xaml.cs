@@ -43,6 +43,7 @@ using Racepad2.Core.Util;
 using Racepad2.UI.Controls;
 using Racepad2.Core.Util.Conversions;
 using System.Threading.Tasks;
+using Racepad2.UI.Maps;
 
 namespace Racepad2 {
 
@@ -76,6 +77,8 @@ namespace Racepad2 {
             }
         }
 
+        internal MapColorController ColorSchemeController { get; private set; }
+
         public NavigationPage() {
             InitializeComponent();
             Display = new DisplayRequest();
@@ -85,6 +88,7 @@ namespace Racepad2 {
             CourseStatus = CourseStatus.COURSE_NOT_STARTED;
             Display.RequestActive();
             InitializePauseDetection();
+            InitializeColorSchemeController();
         }
 
         /// <summary>
@@ -436,6 +440,13 @@ namespace Racepad2 {
         private void ExitNavigation() {
             Frame.Navigate(typeof(MainPage));
         }
+
+        private void InitializeColorSchemeController() {
+            ColorSchemeController = MapColorController.GetMapColorController();
+            ColorSchemeController.MapSchemeChanging += Map.SwitchMapColorScheme;
+            Map.SwitchMapColorScheme(ColorSchemeController.PulseOnce());
+        }
+
     }
 
     public class NavigationPageParameter {
@@ -460,6 +471,9 @@ namespace Racepad2 {
             return true;
         }
 
+        
+
     }
+      
 
 }

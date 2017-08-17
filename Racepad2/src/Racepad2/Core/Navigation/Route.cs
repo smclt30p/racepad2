@@ -35,7 +35,7 @@ using Windows.UI.Xaml.Media;
 
 using Racepad2.Core.Util.Conversions;
 using Racepad2.Navigation.Maths;
-
+using Windows.UI.Xaml.Controls.Maps;
 
 namespace Racepad2.Core.Navigation.Route {
 
@@ -201,18 +201,26 @@ namespace Racepad2.Core.Navigation.Route {
         /// Get a color from a percentage slope. This is used to
         /// visualize slopes on a map.
         /// </summary>
-        public static Color GetColorFromSlope(double percentage) {
+        public static Color GetColorFromSlope(MapControl Map, double percentage) {
+            switch (Map.ColorScheme) {
+                case MapColorScheme.Dark:
+                    if (percentage >= -5 && percentage <= 0) return GetSolidColorBrush("FFFFFF");
+                    if (percentage >= 0 && percentage <= 5) return GetSolidColorBrush("FFFFFF");
+                    break;
+                case MapColorScheme.Light:
+                    if (percentage >= -5 && percentage <= 0) return GetSolidColorBrush("000000");
+                    if (percentage >= 0 && percentage <= 5) return GetSolidColorBrush("000000");
+                    break;
+            }
             if (percentage < -20) return GetSolidColorBrush("0000FF");
-            if (percentage > 20) return GetSolidColorBrush("FF0000");
             if (percentage >= -20 && percentage <= -15) return GetSolidColorBrush("00fffF");
             if (percentage >= -15 && percentage <= -10) return GetSolidColorBrush("0060ff");
             if (percentage >= -10 && percentage <= -5) return GetSolidColorBrush("00ff12");
-            if (percentage >= -5 && percentage <= 0) return GetSolidColorBrush("00ff12");
-            if (percentage >= 0 && percentage <= 5) return GetSolidColorBrush("fffc00");
             if (percentage >= 5 && percentage <= 10) return GetSolidColorBrush("fffc00");
             if (percentage >= 10 && percentage <= 15) return GetSolidColorBrush("ff9600");
             if (percentage >= 15 && percentage <= 20) return GetSolidColorBrush("ff00f0");
-            return Colors.Purple;
+            if (percentage > 20) return GetSolidColorBrush("FF0000");
+            return Colors.Red;
         }
 
         /// <summary>

@@ -114,6 +114,7 @@ namespace Racepad2.UI.Maps {
         private List<BasicGeoposition> _previewPath;
         private MapIcon UserLocation { get; set; }
         private DriveRoute RouteBackup { get; set; }
+        private DriveRoute RouteColorBackup { get; set; }
         private bool PathPreview { get; set; } = false;
         private MapMode _mode;
 
@@ -227,7 +228,7 @@ namespace Racepad2.UI.Maps {
                 polyline = new MapPolyline() {
                     StrokeThickness = 5,
                     Path = path,
-                    StrokeColor = DriveRoute.GetColorFromSlope(pair.SlopePercentage)
+                    StrokeColor = DriveRoute.GetColorFromSlope(Map, pair.SlopePercentage)
                 };
                 Map.MapElements.Add(polyline);
             }
@@ -243,12 +244,24 @@ namespace Racepad2.UI.Maps {
             });
         }
 
+        public void SwitchMapColorScheme(MapColorScheme scheme) {
+            if (Map.ColorScheme == scheme) return;
+            // no route on map
+            if (Route == null) {
+                Map.ColorScheme = scheme;
+                return;
+            }
+            RouteColorBackup = Route;
+            Map.ColorScheme = scheme;
+            Route = RouteColorBackup;
+        }
+
         /// <summary>
         /// This removes all dynamically placed items from the map.
         /// </summary>
         private void RemoveAllMapElements() {
             Map.MapElements.Clear();
         }
-
+        
     }
 }

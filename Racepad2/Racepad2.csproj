@@ -130,6 +130,7 @@
     <Compile Include="src\Racepad2\UI\Controls\TextInputDialog.xaml.cs">
       <DependentUpon>TextInputDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="src\Racepad2\UI\Maps\MapColorController.cs" />
     <Compile Include="src\Racepad2\UI\Maps\MapViewMap.xaml.cs">
       <DependentUpon>MapViewMap.xaml</DependentUpon>
     </Compile>
