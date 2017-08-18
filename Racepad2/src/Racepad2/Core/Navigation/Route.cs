@@ -172,6 +172,7 @@ namespace Racepad2.Core.Navigation.Route {
             List<GeopositionVector> gradients = GetVectorsFromRoute(path);
             double avgslope = 0;
             foreach (GeopositionVector pair in gradients) {
+                if (Double.IsNaN(pair.SlopePercentage)) continue;
                 avgslope += pair.SlopePercentage;
             }
             return Math.Round(avgslope / gradients.Count, 0);
