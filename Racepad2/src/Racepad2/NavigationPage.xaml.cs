@@ -395,13 +395,22 @@ namespace Racepad2 {
             UICommand no = new UICommand("No") {
                 Id = 0
             };
+            UICommand cancel = new UICommand("Cancel") {
+                Id = 2
+            };
             dialog.Commands.Add(yes);
             dialog.Commands.Add(no);
+            dialog.Commands.Add(cancel);
             IUICommand res = await dialog.ShowAsync();
-            if ((int)res.Id == 1) {
-                SaveAndExit();
-            } else {
-                ExitNavigation();
+            switch ((int)res.Id) {
+                case 0:
+                    ExitNavigation();
+                    break;
+                case 1:
+                    SaveAndExit();
+                    break;
+                case 2:
+                    return;
             }
         }
 
