@@ -79,9 +79,10 @@ namespace Racepad2 {
         /// </summary>
         private async void Go_Click(object sender, RoutedEventArgs e) {
             NavigationPageParameter param = new NavigationPageParameter {
-                Route = Route
+                Route = Route,
+                Type = NavigationPageParameterType.NewSession
             };
-            param.DisableNavigation = await param.PromptNavigation();
+            param.NavigationDisabled = await param.PromptNavigation();
             Frame.Navigate(typeof(NavigationPage), param);
         }
     }

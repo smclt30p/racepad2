@@ -96,8 +96,8 @@ namespace Racepad2.Core.Navigation.Route {
 
     public class DriveRoute {
 
-        public IReadOnlyList<BasicGeoposition> Path { get; set; }
-        public IReadOnlyList<Corner> Corners { get; set; }
+        public List<BasicGeoposition> Path { get; set; }
+        public List<Corner> Corners { get; set; }
         public CourseStatus Status { get; set; }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace Racepad2.Core.Navigation.Route {
         /// <param name="Route">The path to be split</param>
         /// <returns>A list of vectors from the route</returns>
         public static List<GeopositionVector> GetVectorsFromRoute(Geopath path) {
-            IReadOnlyList<BasicGeoposition> Route = path.Positions;
+            List<BasicGeoposition> Route = new List<BasicGeoposition>(path.Positions);
             List<GeopositionVector> pairs = new List<GeopositionVector>();
             BasicGeoposition geo1;
             BasicGeoposition geo2;
@@ -131,7 +131,7 @@ namespace Racepad2.Core.Navigation.Route {
         /// <summary>
         /// Returns all the corners from the route
         /// </summary>
-        public static IReadOnlyList<Corner> ParseCorners(IReadOnlyList<BasicGeoposition> positions) {
+        public static List<Corner> ParseCorners(List<BasicGeoposition> positions) {
             List<Corner> corners = new List<Corner>();
             for (int i = 0; i < positions.Count; i++) {
                 if (i + 3 > positions.Count) break;
@@ -295,10 +295,41 @@ namespace Racepad2.Core.Navigation.Route {
         [XmlIgnore] private double _distance = 0; // m
         [XmlIgnore] private string _insruction = "";
         [XmlIgnore] private int _time = 0;
+        [XmlIgnore] private bool navigationDisabled = false;
 
         public Session() {
             StartTime = DisplayConvertor.GetUnitConvertor().CurrentTimeSeconds();
         }
+
+        /// <summary>
+        /// Indicates if the navigation was disabled
+        /// </summary>
+        public bool NavigationDisabled {
+            get {
+                return navigationDisabled;
+            }
+            set {
+                if (value) {
+                    CourseStatus = CourseStatus.COURSE_FINISHED;
+                }
+                navigationDisabled = value;
+            }
+        }
+
+        /// <summary>
+        /// Indicates the status of the course
+        /// </summary>
+        public CourseStatus CourseStatus { get; set; }
+
+        /// <summary>
+        /// Pause detection list of speeds
+        /// </summary>
+        public WalkingList<double> PauseDetection { get; set; }
+
+        /// <summary>
+        /// Used for pausing of the course
+        /// </summary>
+        public CourseStatus PauseCourseStatus { get; set; }
 
         /// <summary>
         /// The ridden path of the session
@@ -310,6 +341,11 @@ namespace Racepad2.Core.Navigation.Route {
                 this.Path = _path;
             }
         }
+
+        /// <summary>
+        /// The turn-by-turn corner offset
+        /// </summary>
+        public int CornerOffset { get; set; } = 0;
 
         /// <summary>
         /// The current position of the vehicle
@@ -414,6 +450,11 @@ namespace Racepad2.Core.Navigation.Route {
         /// in the format "dd/MM/yyyy HH:mm:ss"
         /// </summary>
         public string TimeStamp { get; set; }
+
+        /// <summary>
+        /// The projected route we needed to drive
+        /// </summary>
+        public DriveRoute Route { get; set; }
 
         /// <summary>
         /// Closes the session

@@ -53,7 +53,7 @@
                     <TextBlock Text="Copyright © 2017 Sumpremacy Sofware"
                                TextAlignment="Center"
                                Margin="0,-20,0,0"/>
-                    <TextBlock Text="ALPHA VERSION - build 377"
+                    <TextBlock Text="ALPHA VERSION - build 400"
                                TextAlignment="Center"
                                Foreground="Gray"
                                FontSize="12"/>

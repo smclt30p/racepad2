@@ -52,43 +52,19 @@ namespace Racepad2 {
     /// </summary>
     public sealed partial class NavigationPage : Page {
 
-        private bool navigationDisabled = false;
         private DisplayRequest Display { get; set; }
-        private Session Session { get; set; }
-        private DriveRoute Route { get; set; }
-        private CourseStatus CourseStatus { get; set; }
+        public Session Session { get; set; }
         private Sounds Sounds { get; set; }
-        private WalkingList<double> PauseDetection { get; set; }
-        private int CornerOffset { get; set; } = 0;
-        private bool CoursePaused { get; set; } = false;
-        private CourseStatus PauseCourseStatus { get; set; }
         public static CoreDispatcher MainDispatcher { get; set; }
         private DispatcherTimer Timer { get; set; }
         private Geolocator Locator { get; set; }
-        private bool NavigationDisabled {
-            get {
-                return navigationDisabled;
-            }
-            set {
-                if (value) {
-                    CourseStatus = CourseStatus.COURSE_FINISHED;
-                }
-                navigationDisabled = value;
-            }
-        }
-
-        internal MapColorController ColorSchemeController { get; private set; }
+        private MapColorController ColorSchemeController { get; set; }
 
         public NavigationPage() {
             InitializeComponent();
             Display = new DisplayRequest();
-            Session = new Session();
             Sounds = new Sounds();
-            PauseDetection = new WalkingList<double>(3);
-            CourseStatus = CourseStatus.COURSE_NOT_STARTED;
             Display.RequestActive();
-            InitializePauseDetection();
-            InitializeColorSchemeController();
         }
 
         /// <summary>
@@ -98,19 +74,37 @@ namespace Racepad2 {
         /// </summary>
         protected override void OnNavigatedTo(NavigationEventArgs e) {
             /* Attach back listener to handle the back press */
-            if (e.Parameter == null) {
-                CourseStatus = CourseStatus.COURSE_FINISHED;
-            } else {
-                if (e.Parameter is NavigationPageParameter) {
-                    NavigationPageParameter param = e.Parameter as NavigationPageParameter;
-                    Map.Route = param.Route;
-                    Route = param.Route;
-                    NavigationDisabled = param.DisableNavigation;
-                } else {
-                    throw new Exception("Navigation parameter is not a route!");
-                }
+            if (e.Parameter == null || !(e.Parameter is NavigationPageParameter)) {
+                throw new Exception("Page navigation parameter excpected!");
             }
+            NavigationPageParameter parameter = e.Parameter as NavigationPageParameter;
+            // initialize session and route/path
+            switch (parameter.Type) {
+                case NavigationPageParameterType.NewSession:
+                    StartNewSession(parameter.NavigationDisabled);
+                    if (parameter.Route != null) {
+                        Map.Route = parameter.Route;
+                        Session.Route = parameter.Route;
+                    }
+                    break;
+                case NavigationPageParameterType.ResumeSession:
+                    Session = parameter.OldSession;
+                    if (Session.Route != null) {
+                        Map.Route = Session.Route;
+                    }
+                    break;
+            }
+            InitializePauseDetection();
+            InitializeColorSchemeController();
             StartNavigation();
+        }
+
+        private void StartNewSession(bool navigationDisabled) {
+            Session = new Session {
+                PauseDetection = new WalkingList<double>(3),
+                CourseStatus = CourseStatus.COURSE_NOT_STARTED,
+                NavigationDisabled = navigationDisabled
+            };
         }
 
         /// <summary>
@@ -118,7 +112,7 @@ namespace Racepad2 {
         /// </summary>
         private void InitializePauseDetection() {
             for (int i = 0; i < 5; i++) {
-                PauseDetection.Add(Double.MaxValue);
+                Session.PauseDetection.Add(Double.MaxValue);
             }
         }
         
@@ -163,15 +157,15 @@ namespace Racepad2 {
         /// <param name="args">The current position snapshot</param>
         private void ProcessLocation(Geoposition args) {
             BasicGeoposition currentLocation = args.Coordinate.Point.Position;
-            switch (CourseStatus) {
+            switch (Session.CourseStatus) {
                 /* This occurs when the 
                  * vehicle has finished the course
                  */
                 case CourseStatus.COURSE_FINISHED:
                     if (!IsVehicleMoving(args)) break;
-                    if (navigationDisabled) {
-                        if (IsVehicleOffCourse(currentLocation, Session.Path)) {
-                            CourseStatus = CourseStatus.COURSE_OFF_COURSE;
+                    if (Session.NavigationDisabled) {
+                        if (IsVehicleOffCourse(currentLocation, Session.Route)) {
+                            Session.CourseStatus = CourseStatus.COURSE_OFF_COURSE;
                         }
                     }
                     UpdateInstruction("");
@@ -183,11 +177,11 @@ namespace Racepad2 {
                     UpdateInstruction("Off course!");
                     PlayOffCourseSound();
                     if (!IsVehicleMoving(args)) break;
-                    if (!IsVehicleOffCourse(currentLocation, Session.Path)) {
-                        if (navigationDisabled) {
-                            CourseStatus = CourseStatus.COURSE_FINISHED;
+                    if (!IsVehicleOffCourse(currentLocation, Session.Route)) {
+                        if (Session.NavigationDisabled) {
+                            Session.CourseStatus = CourseStatus.COURSE_FINISHED;
                         } else {
-                            CourseStatus = CourseStatus.COURSE_IN_PROGRESS;
+                            Session.CourseStatus = CourseStatus.COURSE_IN_PROGRESS;
                         }
                         Sounds.ResetOffCoursePlayed();
                         break;
@@ -196,7 +190,7 @@ namespace Racepad2 {
                 case CourseStatus.COURSE_PAUSED:
                     UpdateInstruction("Course paused");
                     if (IsVehicleMoving(args)) {
-                        CourseStatus = PauseCourseStatus;
+                        Session.CourseStatus = Session.PauseCourseStatus;
                     }
                     return; /* Prevent map and data from updating */
                 /* This occurs when the vehicle has 
@@ -205,10 +199,10 @@ namespace Racepad2 {
                  */
                 case CourseStatus.COURSE_LAST_STRAIGHT:
                     if (!IsVehicleMoving(args)) break;
-                    double courseEnd = GeoMath.Distance(Route.Path[Route.Path.Count - 1], currentLocation);
+                    double courseEnd = GeoMath.Distance(Session.Route.Path[Session.Route.Path.Count - 1], currentLocation);
                     UpdateInstruction(String.Format("Course ends in {0}m", Math.Round(courseEnd, 0)));
                     if (VehicleIsNearFinish(courseEnd)) {
-                        CourseStatus = CourseStatus.COURSE_FINISHED;
+                        Session.CourseStatus = CourseStatus.COURSE_FINISHED;
                     }
                     break;
                 /* This occurs when the vehicle has not started the course */
@@ -217,7 +211,7 @@ namespace Racepad2 {
                     if (!IsVehicleMoving(args)) break;
                     if (IsVehicleNearCourseStart(currentLocation)) {
                         UpdateInstruction("Course started");
-                        CourseStatus = CourseStatus.COURSE_IN_PROGRESS;
+                        Session.CourseStatus = CourseStatus.COURSE_IN_PROGRESS;
                     }
                     break;
                 /* This occurs when the vehicle is on course
@@ -225,15 +219,15 @@ namespace Racepad2 {
                  */
                 case CourseStatus.COURSE_IN_PROGRESS:
                     if (!IsVehicleMoving(args)) {
-                        CourseStatus = CourseStatus.COURSE_PAUSED;
+                        Session.CourseStatus = CourseStatus.COURSE_PAUSED;
                         break;
                     }
-                    if (IsVehicleOffCourse(currentLocation, Session.Path)) {
-                        CourseStatus = CourseStatus.COURSE_OFF_COURSE;
+                    if (IsVehicleOffCourse(currentLocation, Session.Route)) {
+                        Session.CourseStatus = CourseStatus.COURSE_OFF_COURSE;
                         break;
                     }
                     if (IsVehiclePastFinalCorner()) {
-                        CourseStatus = CourseStatus.COURSE_LAST_STRAIGHT;
+                        Session.CourseStatus = CourseStatus.COURSE_LAST_STRAIGHT;
                         break;
                     }
                     NextCorner(currentLocation);
@@ -252,7 +246,7 @@ namespace Racepad2 {
         /// <param name="currentLocation">The vehicle's current location</param>
         /// <returns>True if vehicle is less than 10m away from the start</returns>
         private bool IsVehicleNearCourseStart(BasicGeoposition currentLocation) {
-            return GeoMath.Distance(currentLocation, Route.Path[0]) < 10;
+            return GeoMath.Distance(currentLocation, Session.Route.Path[0]) < 10;
         }
 
         /// <summary>
@@ -262,19 +256,19 @@ namespace Racepad2 {
         /// </summary>
         /// <param name="currentLocation"></param>
         private void NextCorner(BasicGeoposition currentLocation) {
-            double upcomingCorner = GeoMath.Distance(Route.Corners[CornerOffset].Position, currentLocation);
+            double upcomingCorner = GeoMath.Distance(Session.Route.Corners[Session.CornerOffset].Position, currentLocation);
             if (upcomingCorner > 400) {
                 UpdateInstruction("");
             } else if (upcomingCorner > 50) {
                 UpdateInstruction(String.Format("In {0}m turn {1}", Math.Round(upcomingCorner, 0),
-                    Corner.GetDescriptionForCorner(Route.Corners[CornerOffset])));
+                    Corner.GetDescriptionForCorner(Session.Route.Corners[Session.CornerOffset])));
             } else if (upcomingCorner > 20) {
-                UpdateInstruction("Turn " + Corner.GetDescriptionForCorner(Route.Corners[CornerOffset]));
+                UpdateInstruction("Turn " + Corner.GetDescriptionForCorner(Session.Route.Corners[Session.CornerOffset]));
                 PlayTurnSound();
             }
             /* Corner is less than 20m away, turn in and  switch to next one */
             if (upcomingCorner < 20) {
-                CornerOffset++;
+                Session.CornerOffset++;
                 Sounds.ResetTurnPlayed();
             }
         }
@@ -295,7 +289,7 @@ namespace Racepad2 {
         /// course and the finish.
         /// </summary>
         private bool IsVehiclePastFinalCorner() {
-            return CornerOffset + 1 > Route.Corners.Count;
+            return Session.CornerOffset + 1 > Session.Route.Corners.Count;
         }
         
         /// <summary>
@@ -303,8 +297,9 @@ namespace Racepad2 {
         /// </summary>
         /// <param name="currentLocation"></param>
         /// <returns></returns>
-        private bool IsVehicleOffCourse(BasicGeoposition currentLocation, List<BasicGeoposition> polyline) {
-            return !PolyUtil.isLocationOnPath(currentLocation, polyline , false, 25);
+        private bool IsVehicleOffCourse(BasicGeoposition currentLocation, DriveRoute route) {
+            if (route == null) return false;
+            return !PolyUtil.isLocationOnPath(currentLocation, route.Path, false, 25);
         }
         
         /// <summary>
@@ -313,14 +308,14 @@ namespace Racepad2 {
         /// </summary>
         private bool IsVehicleMoving(Geoposition args) {
             if (args.Coordinate.Speed != null && args.Coordinate.Speed != Double.NaN) {
-                PauseDetection.Add((double)args.Coordinate.Speed);
+                Session.PauseDetection.Add((double)args.Coordinate.Speed);
             }
             bool ret = VehicleMoving();
             if (!ret) {
-                if (CourseStatus != CourseStatus.COURSE_PAUSED) {
-                    PauseCourseStatus = CourseStatus;
+                if (Session.CourseStatus != CourseStatus.COURSE_PAUSED) {
+                    Session.PauseCourseStatus = Session.CourseStatus;
                 }
-                CourseStatus = CourseStatus.COURSE_PAUSED;
+                Session.CourseStatus = CourseStatus.COURSE_PAUSED;
             }
             return ret;
         }
@@ -381,7 +376,7 @@ namespace Racepad2 {
         /// <returns>If the vehicle is moving</returns>
         private bool VehicleMoving() {
             double avg = 0;
-            foreach (double d in PauseDetection) {
+            foreach (double d in Session.PauseDetection) {
                 avg += d;
             }
             return avg > 3;
@@ -438,6 +433,7 @@ namespace Racepad2 {
         /// without saving the session
         /// </summary>
         private void ExitNavigation() {
+            SettingsManager.GetDefaultSettingsManager().PutSetting("SessionBackup", "null");
             Frame.Navigate(typeof(MainPage));
         }
 
@@ -451,8 +447,9 @@ namespace Racepad2 {
 
     public class NavigationPageParameter {
         public DriveRoute Route { get; set; }
-        public bool DisableNavigation { get; set; }
-
+        public Session OldSession { get; set; }
+        public NavigationPageParameterType Type { get; set; }
+        public bool NavigationDisabled {get; set;}
         public async Task<bool> PromptNavigation() {
             MessageDialog dialog = new MessageDialog("This is not recommended for twisty off road trails.");
             dialog.Title = "Turn on turn-by-turn navigation ?";
@@ -475,5 +472,8 @@ namespace Racepad2 {
 
     }
       
+    public enum NavigationPageParameterType {
+        NewSession, ResumeSession
+    }
 
 }

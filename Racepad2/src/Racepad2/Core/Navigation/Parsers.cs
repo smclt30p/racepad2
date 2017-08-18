@@ -52,7 +52,7 @@ namespace Racepad2.Core.Navigation.Parsers {
         private DriveRoute Parse() {
             DriveRoute route = new DriveRoute();
             List<BasicGeoposition> path = ParsePath();
-            IReadOnlyList<Corner> corners = DriveRoute.ParseCorners(PolyUtil.simplify(path, 5));
+            List<Corner> corners = DriveRoute.ParseCorners(PolyUtil.simplify(path, 5));
             if (path.Count < 2) return route;
             route.Corners = corners;
             route.Path = path;

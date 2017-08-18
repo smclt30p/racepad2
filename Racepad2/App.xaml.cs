@@ -23,9 +23,10 @@
 * limitations under the License.
 */
 
+using Racepad2.Core.Navigation.Route;
 using Racepad2.Core.Util;
 using System;
-
+using System.Diagnostics;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Core;
@@ -81,7 +82,16 @@ namespace Racepad2 {
                     // configuring the new page by passing required information as a navigation
                     // parameter
                     SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
-                    rootFrame.Navigate(typeof(MainPage), e.Arguments);
+
+                    string oldSession = SettingsManager.GetDefaultSettingsManager().GetSetting("SessionBackup", "null");
+                    if (oldSession != "null") {
+                        NavigationPageParameter param = new NavigationPageParameter() {
+                            Route = null,
+                            Type = NavigationPageParameterType.ResumeSession,
+                            OldSession = Session.Deserialize(oldSession)
+                        };
+                        rootFrame.Navigate(typeof(NavigationPage), param);
+                    } else rootFrame.Navigate(typeof(MainPage), e.Arguments);
                 }
                 // Ensure the current window is active
                 Window.Current.Activate();
@@ -123,6 +133,11 @@ namespace Racepad2 {
         /// <param name="e">Details about the suspend request.</param>
         private void OnSuspending(object sender, SuspendingEventArgs e) {
             var deferral = e.SuspendingOperation.GetDeferral();
+            // backup the session
+            if (Window.Current.Content is Frame frame && frame.Content is NavigationPage) {
+                NavigationPage page = frame.Content as NavigationPage;
+                SettingsManager.GetDefaultSettingsManager().PutSetting("SessionBackup", Session.Serialize(page.Session));
+            }
             SettingsManager.GetDefaultSettingsManager().CommitToStorage();
             deferral.Complete();
         }

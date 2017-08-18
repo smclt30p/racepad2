@@ -32,7 +32,7 @@ namespace Racepad2.Core {
     /// Represents a reversed fixed-size queue
     /// </summary>
     /// <typeparam name="T">The type of items that the reversed fixed-size queue holds</typeparam>
-    class WalkingList<T> : List<T> {
+    public class WalkingList<T> : List<T> {
 
         /// <summary>
         /// Default queue size is 10 items

@@ -51,7 +51,11 @@ namespace Racepad2 {
         /// The RIDE button is pressed
         /// </summary>
         private void Ride_Click(object sender, RoutedEventArgs e) {
-            Frame.Navigate(typeof(NavigationPage), null);
+            NavigationPageParameter param = new NavigationPageParameter() {
+                Route = null,
+                Type = NavigationPageParameterType.NewSession
+            };
+            Frame.Navigate(typeof(NavigationPage), param);
         }
 
         /// <summary>

@@ -92,7 +92,7 @@ namespace Racepad2 {
             get { return new Geopath(_route.Path); }
             set {
                 _route = new DriveRoute() {
-                    Path = value.Positions,
+                    Path = new List<BasicGeoposition>(value.Positions),
                 };
                 _route.Corners = DriveRoute.ParseCorners(_route.Path);
                 _route.Status = CourseStatus.COURSE_NOT_STARTED;
@@ -347,9 +347,10 @@ namespace Racepad2 {
         /// </summary>
         private async void GoButton_Click(object sender, RoutedEventArgs e) {
             NavigationPageParameter param = new NavigationPageParameter {
-                Route = _route
+                Route = _route,
+                Type = NavigationPageParameterType.NewSession
             };
-            param.DisableNavigation = await param.PromptNavigation();
+            param.NavigationDisabled = await param.PromptNavigation();
             Frame.Navigate(typeof(NavigationPage), param);
         }
 
