@@ -434,6 +434,7 @@ namespace Racepad2 {
         /// </summary>
         private void ExitNavigation() {
             SettingsManager.GetDefaultSettingsManager().PutSetting("SessionBackup", "null");
+            Display.RequestRelease();
             Frame.Navigate(typeof(MainPage));
         }
 
